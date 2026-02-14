@@ -4,23 +4,102 @@
   --background: #ffffff;
   --foreground: #171717;
 }
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
 body {
-  background: var(--background);
+  background-color: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+}
+
+/* 
+@theme {
+  --color-brand-black: #0a090c;
+  --color-brand-gold: #fca311;
+  --color-brand-gray: #e5e5e5;
+  --color-brand-white: #ffffff;
+
+
+  
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
+}
+ */
+  /* verde y amarillog /gold */
+ /*  --color-brand-black: #132a13;
+  --color-brand-gold:  #fca311; */
+  /* azul y   */
+
+
+  /* azul y verde */
+/* @theme {
+
+   --color-brand-black: #14213D;
+   --color-brand-gold:  #38B000;
+  --color-brand-gray: #E5E5E5;
+  --color-brand-white: #ffffff;
+
+
+
+  --color-success: #22c55e;
+  --color-danger: #ef4444;
+} */
+
+
+@theme {
+  --color-brand-black: #000814;
+  --color-brand-gold: #FFC300;
+  --color-brand-gray: #e5e5e5;
+  --color-brand-white: #ffffff;
+  --color-success: #FFC300;
+  --color-danger: #e91313f1;
+
+  /* --- NUEVAS ANIMACIONES AQUÍ --- */
+  @keyframes loading-slide {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(250%); }
+  }
+--animate-loading-slide: loading-slide 1.5s infinite ease-in-out;
+  /* progres bar */
+
+/*   @keyframes progress-bar: { '0%': { width: '0%' }, '100%': { width: '100%' } }
+  --animate-progress-bar: loading-slide 1.5s infinite ease-in-out;
+
+   */
+}
+
+.overflow-x-auto {
+  -webkit-overflow-scrolling: touch; /* Mejora el scroll en iPhone */
+}
+
+/* Opcional: Forzar visibilidad de barra de scroll para debug */
+.overflow-x-auto::-webkit-scrollbar {
+  height: 8px;
+}
+.overflow-x-auto::-webkit-scrollbar-thumb {
+  background: #FFC300; 
+  border-radius: 10px;
+}
+
+
+
+@media print {
+  /* Ocultar todo el sitio */
+  body * {
+    visibility: hidden;
+  }
+  /* Mostrar solo el contenedor del ticket */
+  #printable-ticket, #printable-ticket * {
+    visibility: visible;
+  }
+  #printable-ticket {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 400px;
+    border: 1px solid #e2e8f0; /* Un borde sutil para que se vea el límite del papel */
+  }
+  /* Quitar márgenes de navegador (opcional pero recomendado) */
+  @page {
+    margin: 0;
+  }
 }

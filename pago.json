@@ -1,0 +1,49 @@
+{
+    amount
+: 60
+bookingId
+: "69838a1d8cbe7e9829b2b4f6"
+businessId
+: 
+createdAt
+: "2025-12-23T14:38:21.651Z"
+description
+: "Empresa dedicada alalquiler de cachas de gras sintetico"
+id
+: "694aa95d9f645de56f46389a"
+name
+: "Prometeo"
+slug
+: "prometeo"
+state
+: true
+updatedAt
+: "2025-12-23T14:47:06.088Z"
+_id
+: "694aa95d9f645de56f46389a"[
+        [Prototype
+        ]
+    ]
+: 
+Object
+descuento
+: 6
+idCustomer
+: "6959861ac2fc57a66c48d36b"
+nameCustomer
+: "Consumidor final"
+paymentDate
+: "2026-02-04T21:15:05.056Z"
+paymentMethod
+: "CASH"
+status
+: "COMPLETED"
+total
+: 54
+userId
+: "6959861ac2fc57a66c48d36b"
+__v
+: 0
+_id
+: "6983b6d98cbe7e9829b2b97e"
+}

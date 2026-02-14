@@ -1,0 +1,66 @@
+
+import { UserProvider } from '@/context/UserContext';
+import { cookies } from 'next/headers';
+// para notificaciones en cualquier parte de la pantalla
+import { Toaster } from 'sonner';
+//coponents
+import Sidebar from '../../../components/sidebar';
+import MobileNavbar from "@/components/MobileNavbar";
+
+export default async function slugLayout({ children }: { children: React.ReactNode }) {
+  const cookieStore = await cookies();
+
+  // Preparamos los datos iniciales desde el servidor
+  const initialUser = {
+    token: cookieStore.get('token')?.value || '',
+    idUser: cookieStore.get('id_user')?.value || '',
+    name: cookieStore.get('user_name')?.value || '',
+    slug: cookieStore.get('slug')?.value || '',
+    businessId: cookieStore.get('businessId')?.value || ''
+  };
+
+//   role: cookieStore.get('user_role')?.value || '',
+  return (
+    <UserProvider initialUser={initialUser}>
+     {/*  <div className="flex min-h-screen bg-brand-gray"> */}
+      <div className="flex flex-col md:flex-row min-h-screen">
+      <Sidebar
+          key={initialUser.name || ''}
+          business={initialUser.slug || ''}
+          
+        /> 
+
+        <MobileNavbar
+
+          /* key={initialUser.name || ''} */
+          business={initialUser.slug|| ''}
+        />  
+
+
+        <main className="flex-1 flex flex-col overflow-hidden  px-0">
+          {/* Header Superior opcional */}
+          <header className="h-16 bg-brand-white border-b border-brand-gray/20 flex items-center justify-between px-8">
+            <h1 className="text-brand-black font-semibold uppercase tracking-tight">Panel de Control </h1>
+            <div className="flex items-center gap-3 ">
+              <span className="text-sm text-brand-black/60 italic">Hola, {initialUser.name}</span>
+              <div className="w-8 h-8 rounded-full bg-brand-gold flex items-center justify-center text-brand-black font-bold">
+                {initialUser.name[0]}
+              </div>
+            </div>
+          </header>
+
+          {/* Contenido Dinámico */}
+          <div className="flex-1 overflow-y-auto  bg-gray-100   mx-auto">
+            {children}
+            <Toaster
+            toastOptions={{
+              style: { background: '#000814', color: '#ffffff', border: '1px solid #FFC300' },
+              className: 'my-toast-class',
+            }}
+            position="top-right" richColors closeButton />
+          </div>
+        </main>
+      </div>
+    </UserProvider>
+  );
+}
