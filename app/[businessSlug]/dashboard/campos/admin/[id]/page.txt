@@ -6,6 +6,7 @@ import { Save, ArrowLeft, Lock, Unlock, Info, DollarSign, Users, MapPin, Loader2
 // Importa tu función de actualización aquí (ej: updateField)
 import { getfieldId, getUpdatefield  } from '@/app/actions/fields';
 import { useUser } from '@/context/UserContext';
+import { SoccerField } from '@/types/field';
 
 const EditCampo = () => {
   const router = useRouter();
@@ -13,13 +14,15 @@ const EditCampo = () => {
   const idfield = params.id;
   const { user } = useUser();
 
-  const [campo, setCampo] = useState(null);
+  //const [campo, setCampo] = useState(null);
+    // 1. Tipado de estados
+  const [campo, setCampo] = useState<SoccerField[]>([]);
   const [loading, setLoading] = useState(true);
   const [isEditable, setIsEditable] = useState({});
   const [saving, setSaving] = useState(false);
   const [mensage, setMensage] = useState('');
 
-  const fieldId = String(idfield?.$oid || idfield || "");
+  const fieldId = String(idfield || "");
 
   useEffect(() => {
     if (!fieldId) return;

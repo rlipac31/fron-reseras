@@ -25,7 +25,7 @@ export default async function SaveReservationPage({
  const fieldId = params.fieldId; */
  
   
-  const field = await getfieldId(fieldId);
+  const field = await getfieldId(fieldId || '');
   const campo = field.data.field;
   console.log(" camapo id ", fieldId, "campo data ", campo)
 /* 

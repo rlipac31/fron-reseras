@@ -17,7 +17,6 @@ function SuccessContent() {
   const searchParams = useSearchParams();
 
 
-  //const [ dataTikeck, setDatatikeck ] = useState<any>(null)
 
   const business = searchParams.get("business");
   const campo = searchParams.get("campo") || "Cancha"; ("campo");
@@ -32,17 +31,7 @@ function SuccessContent() {
   const fechaPago = searchParams.get("fechaPago");
   const ref = searchParams.get("ref");
 
-
-
-  /* useEffect(() => {
-     const loadTikeck = ()=>{
-         
-     }
-     loadTikeck() 
-   }, [searchParams]) */
-
-
-
+/* 
   const formatDate = (date: Date) => {
     return new Date(date).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
   }
@@ -54,7 +43,32 @@ function SuccessContent() {
       minute: '2-digit',
       hour12: true
     });
-  };
+  }; */
+
+  const formatDate = (dateString: string | null) => {
+  if (!dateString) return "Fecha no disponible";
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return "Fecha inválida"; // Validación por si el string no es fecha
+  
+  return date.toLocaleDateString('es-ES', { 
+    weekday: 'long', 
+    day: 'numeric', 
+    month: 'long', 
+    year: 'numeric' 
+  });
+};
+
+const formatTime = (dateString: string | null) => {
+  if (!dateString) return "--:--";
+  const date = new Date(dateString);
+  if (isNaN(date.getTime())) return "Hora inválida";
+
+  return date.toLocaleTimeString('es-ES', {
+    hour: '2-digit',
+    minute: '2-digit',
+    hour12: true
+  });
+};
 
   const horaInicio = formatTime(inicio);
   const fechaJuego = formatDate(inicio);

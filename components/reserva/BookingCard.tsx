@@ -91,8 +91,8 @@ const stateColors = {
             <div className="w-8 h-8 rounded-full bg-brand-gray/20 flex items-center justify-center">
               <User size={18} className="text-brand-gold" />
             </div>
-            <span className="text-xs font-medium text-gray-600 italic">{booking.userId.name}</span>
-             <span className="text-xs font-medium text-gray-600 italic">{booking.userId?.email}</span>
+           {/*  <span className="text-xs font-medium text-gray-600 italic">{booking.userId.name}</span>
+             <span className="text-xs font-medium text-gray-600 italic">{booking.userId?.email}</span> */}
           </div>
          
         </div>

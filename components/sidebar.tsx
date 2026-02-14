@@ -35,10 +35,10 @@ interface NavItemProps {
 );
 
 
-export default function Sidebar() {
+export default function Sidebar({slug}: {slug:string}) {
   const pathname = usePathname(); // Obtenemos la ruta actual (ej: "/dashboard/reservas")
   const { user, setUser }  = useUser();
- // const token = user?.token;
+ // const token = token;
   //const slug = user?.slug;
  // console.log("user desde sidebar:: ", user?.slug)
 
@@ -75,47 +75,47 @@ const handleLogoutClick = async () => {
         <div className="bg-brand-accent p-2 rounded-lg shadow-lg shadow-brand-accent/20">
           <LayoutDashboard size={20} className="text-brand-black" />
         </div>
-        <span className="text-xl font-black italic tracking-tighter">ARENA {user?.slug.toUpperCase()}</span>
+        <span className="text-xl font-black italic tracking-tighter">ARENA {slug.toUpperCase()}</span>
       </div>
 
       <nav className="space-y-2 flex-1 flex flex-col gap-1">
-        <Link href={`/${user?.slug}/dashboard`}>
+        <Link href={`/${slug}/dashboard`}>
           <NavItem 
             icon={<LayoutDashboard size={20} />} 
             label="Dashboard" 
-            active={isActive(`/${user?.slug}/dashboard`)} 
+            active={isActive(`/${slug}/dashboard`)} 
           />
         </Link>
 
-        <Link href={`/${user?.slug}/dashboard/reservas`}>
+        <Link href={`/${slug}/dashboard/reservas`}>
           <NavItem 
             icon={<CalendarDays size={20} />} 
             label="Reservas" 
-            active={isActive(`/${user?.slug}/dashboard/reservas`)} 
+            active={isActive(`/${slug}/dashboard/reservas`)} 
           />
         </Link>
 
          {/* Dentro de tu Sidebar actual, cambia estos links: */}
-        <Link href={`/${user?.slug}/dashboard/campos`}>
+        <Link href={`/${slug}/dashboard/campos`}>
           <NavItem 
             icon={<GiSoccerField size={24} />} 
             label="Campos" 
-            active={isActive(`/${user?.slug}/dashboard/campos`)} 
+            active={isActive(`/${slug}/dashboard/campos`)} 
           />
         </Link>
 
-        <Link href={`/${user?.slug}/dashboard/usuarios`}>
+        <Link href={`/${slug}/dashboard/usuarios`}>
           <NavItem 
             icon={<Users size={20} />} 
             label="Usuarios" 
-            active={isActive(`/${user?.slug}/dashboard/usuarios`)} 
+            active={isActive(`/${slug}/dashboard/usuarios`)} 
           />
         </Link>
-       <Link href={`/${user?.slug}/dashboard/customers`}>
+       <Link href={`/${slug}/dashboard/customers`}>
           <NavItem 
             icon={<Users size={20} />} 
             label="Clientes" 
-            active={isActive(`/${user?.slug}/dashboard/customers`)} 
+            active={isActive(`/${slug}/dashboard/customers`)} 
           />
         </Link>
       </nav>

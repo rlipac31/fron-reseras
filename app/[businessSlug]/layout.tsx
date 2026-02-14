@@ -6,27 +6,36 @@ import MobileNavbar from "@/components/MobileNavbar";
 
 import { getServerUser } from '@/app/actions/userServer'; // La función que creamos antes
 
-
+  // 1. Define la interfaz de params como una Promesa
+interface LayoutParams {
+  businessSlug: string;
+}
 export default async function SlugLayout({ 
   children, 
   params 
 }: { 
-  children: React.ReactNode, 
-  params: { businessSlug: string } 
+  children: React.ReactNode;
+  params: Promise<LayoutParams>; // Definimos que params es una Promesa
 }) {
-  const { businessSlug } = await params;
-  //console.log(" busnessSlug desde layout businesSlug ")
+  // 2. Esperamos a la promesa de params
+  const resolvedParams = await params;
+  const { businessSlug } = resolvedParams;
+  console.log(" busnessSlug desde layout businesSlug ", businessSlug)
   
   // 1. Obtenemos los datos decodificando el token en el servidor (Sin fetch extra)
   const userData = await getServerUser();
-  //console.log("data desde slugLayout ", userData)
+  console.log("data::: desde slugLayout ", userData)
 
   // 2. VALIDACIÓN DE SEGURIDAD: 
-  // Si el usuario intenta entrar a un slug que no le pertenece, lo bloqueamos.
+
+ 
   if (userData && userData.slug !== businessSlug) {
-    // Podrías redireccionar o mostrar un error
-    // redirect('/403'); 
+     console.log("Acceso no autorizado para este slug");
+     // redirect(`/${userData.slug}/unauthorized`); // Opcional
   }
+
+
+
 
 
 
@@ -37,7 +46,7 @@ export default async function SlugLayout({
       <div className="flex flex-col md:flex-row min-h-screen">
         <Sidebar
           key={userData?.uid || 'guest'}
-          business={userData?.slug || ''}
+          slug={userData?.slug || 'intimos'}
         /> 
 
         <MobileNavbar

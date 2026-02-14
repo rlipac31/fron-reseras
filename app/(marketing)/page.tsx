@@ -89,7 +89,7 @@ console.log(" cnachas ", canchas) */
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {canchas && canchas.map((campo ) => (
-              <div key={campo._id} className="group relative h-[450px] rounded-2xl overflow-hidden border border-brand-gold/20">
+              <div key={campo.id} className="group relative h-[450px] rounded-2xl overflow-hidden border border-brand-gold/20">
                 <Image
                   src={cancha_1}
                   alt={campo.name}

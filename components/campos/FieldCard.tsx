@@ -33,7 +33,7 @@ export default function FieldCard2({ field }: FieldCardProps) {
 
 
 
-    const fieldId = String(field?._id?.$oid || field?._id || "");
+    const fieldId = String(field?._id || "");
 
     const formatTime = (dateString: string) => {
         return new Date(dateString).toLocaleTimeString([], {

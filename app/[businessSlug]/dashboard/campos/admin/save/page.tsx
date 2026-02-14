@@ -1,26 +1,29 @@
 "use client";
 import { useState, useEffect } from "react"; // Añadimos useEffect
-import { Calendar, Clock, Timer, Search, CheckCircle2, MapPin } from "lucide-react";
+import { Calendar, Clock, Timer, Search, CheckCircle2, MapPin, Loader2 } from "lucide-react";
 import { GiSoccerKick } from "react-icons/gi";
-import { createField } from "@/app/actions/fields";
-import { useRouter, useSearchParams } from "next/navigation"; // Importamos useSearchParams
+import { createField } from "@/app/actions/fields";// Importamos useSearchParams
 import { useUser } from '@/context/UserContext';
-import { notFound } from "next/navigation";
+import { useRouter, useSearchParams, notFound } from "next/navigation";
+import { Suspense } from "react";
 
-import { ErrorAlert } from "@/components/Alert"; // Importa el componente de arriba
+//import { ErrorAlert } from "@/components/Alert"; // Importa el componente de arriba
 
-export default function CreateFieldPage() {
+function CreateFieldForm() {
   const router = useRouter();
   const searchParams = useSearchParams(); // Hook para capturar parámetros en el cliente
-  const businessId = searchParams.get("businessId"); // Obtenemos el valor de ?businessId=...
+  const businessId = searchParams.get("businessId"); // Obtenemos el valor de ?businessId=..
+ const { user } = useUser(); // Es vital saber si está cargando.
 
 
-  const { user } = useUser(); // Asumiendo que useUser devuelve { user, ... }
   const slug = user?.slug;
-  if (user?.role !== 'ADMIN') {
-    return { users: [], errorMessage: 'Ruta No autorizada.' };
-    notFound();
-  }
+// Validación de seguridad (Corregida para el Build)
+  useEffect(() => {
+    if (user && user.role !== 'ADMIN') {
+      router.push(`/${user.slug}/unauthorized`);
+    }
+  }, [user, router]);
+
 
 
   const [loading, setLoading] = useState(false);
@@ -88,7 +91,7 @@ export default function CreateFieldPage() {
       setLoading(false);
     }
   };
-
+if (user?.role !== 'ADMIN') return null;
 
   if (success) {
     return (
@@ -243,4 +246,17 @@ export default function CreateFieldPage() {
     </div>
   </div>
 );
+}
+
+// 2. Exportamos la página envuelta en Suspense (Esto arregla el error de Vercel)
+export default  function CreateFieldPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex justify-center p-10">
+        <Loader2 className="animate-spin text-brand-gold" size={40} />
+      </div>
+    }>
+      <CreateFieldForm />
+    </Suspense>
+  );
 }
