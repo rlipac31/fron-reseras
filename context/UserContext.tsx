@@ -31,7 +31,7 @@ export function UserProvider({ children, initialUser }: { children: ReactNode, i
         try {
        // console.log("ejecutando getMe....debtreo del try")
 
-          const res = await fetch(`https://wrong-mame-rlipac-497028fb.koyeb.app/api/auth/me`, {
+          const res = await fetch(`/api-backend/auth/me`, {
             method: "GET",
             credentials: "include", 
             
