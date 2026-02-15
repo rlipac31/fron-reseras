@@ -23,8 +23,7 @@ const WelcomePage = () => {
     /*  const token = user?.token;
        const business = user?.slug; */
     console.log("user desde page HomePage ", user)
-    //   console.log("desde ovacion __>>>>>:: ", token)
-    //  console.log("desde busines :: ", business)
+  
     return (
         <div className="  min-w-[65vw] min-h-screen bg-brand-black flex flex-col items-center justify-center rounded-4xl">
             {/* Contenedor del Spinner Principal */}
