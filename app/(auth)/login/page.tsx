@@ -87,17 +87,11 @@ type LoginFormValues = z.infer<typeof loginSchema>;
       
 
     } catch (error) {
-  ///  console.error("Error en login:", error);
     setErrorMsg(`Hubo un error typo:  ${error}`)
     setLoginError(true)
   }
 };    
  
-
-////
-
-
-
 
 
   return (

@@ -56,36 +56,6 @@ export function UserProvider({ children, initialUser }: { children: ReactNode, i
   }, [initialUser]); 
 
 
-/*   useEffect(() => {
-    // Solo pedimos al backend si NO tenemos datos en el estado local 'user'
-    // y no nos pasaron un 'initialUser'
-    if (!user && !initialUser) {
-        const verifySession = async () => {
-            try {
-           //   console.log("desde dray de userConetext")
-                const res = await fetch("http://localhost:4000/api/auth/me", {
-                    method: "GET",
-                    credentials: "include", 
-                });
-
-                if (res.ok) {
-                    const data = await res.json();
-                  //  console.log("DATOS CRUDOS DEL BACKEND:", data); // <--- ESTO ES LO IMPORTANTE
-                    setUser(data.user);
-                    if(data.user) setUser(data.user);
-                }
-            } catch (error) {
-                setUser(null);
-            } finally {
-                setLoading(false);
-            }
-        };
-        verifySession();
-    }
-}, [initialUser, user]); // Añade 'user' a las dependencias
-
-
-*/
   return (
     <UserContext.Provider value={{ user, setUser, loading }}>
       {children}
