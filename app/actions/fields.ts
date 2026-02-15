@@ -45,7 +45,8 @@ export async function getFields() {
   const token = cookieStore.get('token')?.value;
 
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/fields/lista`, {
+    const url =`${process.env.NEXT_PUBLIC_API_URL}/fields/lista`;
+    const res = await fetch(`${url}`, {
       headers: {
         // Seguimos enviando el token al backend de Node.js
         'x-token': `${token}`, 
@@ -57,12 +58,12 @@ export async function getFields() {
     const data = await res.json();
 
     if (!res.ok) {
-      return { success: false, message: data.message || "Error al cargar campos" };
+      return { success: false, error: `error url:  ${url}` };
     }
     // Retornamos el objeto completo (que ahora incluye el user verificado del backend)
     return { success: true, content: data.fields}
   } catch (err) {
-    return { success: false, contetn:[], error: "Error de conexión" };
+    return { success: false, contetn:[], error: `${err}` };
   }
 }
 
@@ -72,7 +73,8 @@ export async function getFieldsCompleta() {
   const token = cookieStore.get('token')?.value;
 
   try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/fields/lista-completa`, {
+    const url =`${process.env.NEXT_PUBLIC_API_URL}/fields/lista-completa`;
+    const res = await fetch(`${url}`, {
       headers: {
         // Seguimos enviando el token al backend de Node.js
         'x-token': `${token}`, 
@@ -84,12 +86,12 @@ export async function getFieldsCompleta() {
     const data = await res.json();
 
     if (!res.ok) {
-      return { success: false, message: data.message || "Error al cargar campos" };
+      return { success: false, message: `error url:  ${url}` };
     }
     // Retornamos el objeto completo (que ahora incluye el user verificado del backend)
     return { success: true, content: data.fields}
   } catch (err) {
-    return { success: false, contetn:[], error: "Error de conexión" };
+    return { success: false, contetn:[], error: `Error de conexión ` };
   }
 }
 //

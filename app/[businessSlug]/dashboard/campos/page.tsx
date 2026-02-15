@@ -15,15 +15,15 @@ export default async function CamposPage() {
   // Desestructuramos y esperamos las promesas
 
 const user = await getServerUser();
-//console.log("user desde page campos.... ", user)
+console.log("user desde page campos.... ", user)
 
- //console.log("🔍 Página Campos - User recuperado:", user?.role);
+ console.log("🔍 Página Campos - User recuperado:", user?.role);
 
-    if (!user) {
+     if (!user) {
     // Si el layout lo ve pero la página no, es un problema de caché de cookies
     return <div>Cargando sesión o sesión no encontrada...</div>;
   }   
-
+ 
 
   // 1. Llamamos al action
 
