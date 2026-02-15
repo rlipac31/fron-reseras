@@ -4,15 +4,6 @@ import BookingForm from "@/components/reserva/BookingForm"
 import { Suspense } from "react";
 
 
-
-
-
-/* interface PageProps {
-  searchParams: Promise<{ fieldId?: string; name?:string; date?:string; time?:string }>;
-} */
-
-//export default async function BookingPage({ searchParams}:PageProps) {
-
 export default async function SaveReservationPage({
   searchParams,
 }: {
@@ -20,10 +11,7 @@ export default async function SaveReservationPage({
 }) { 
   const { fieldId, name, date, time } = await searchParams;
   // En un escenario real, aquí podrías hacer un fetch al backend 
-  // para obtener los detalles de la cancha (nombre, precio, foto)
-/*  const params = await searchParams;
- const fieldId = params.fieldId; */
- 
+
   
   const field = await getfieldId(fieldId || '');
   const campo = field.data.field;
