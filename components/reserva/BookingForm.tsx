@@ -80,7 +80,7 @@ export default function ReservationForm({ initialData }: Props) {
     useEffect(() => {
         const fetchCustomers = async () => {
             try {
-                const res = await fetch(`http://localhost:4000/api/users/customers`, {
+                const res = await fetch(`/api-backend/users/customers`, {
                     headers: { "Content-Type": "application/json" },
                     // ESTO ES VITAL: Permite que el navegador reciba y guarde la cookie HttpOnly
                     credentials: "include",
@@ -127,7 +127,7 @@ export default function ReservationForm({ initialData }: Props) {
         setLoading(true);
         try {
             console.log(" datafromat desde handlesutmit ", formData);
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings`, { // Tu endpoint de Node.js
+            const response = await fetch(`/api-backend/bookings`, { // Tu endpoint de Node.js
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
