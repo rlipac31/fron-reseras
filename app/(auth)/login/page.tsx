@@ -1,3 +1,5 @@
+
+
 "use client";
 
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -73,10 +75,61 @@ function LoginForm() {
             { loginError && <ErrorAlert message={errorMgs} onClose={()=> setLoginError(false)} /> }
           </div>
 
-          <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-            {/* ... Tus campos de input ... */}
-            <button type="submit" disabled={isSubmitting} className="w-full bg-brand-gold ...">
+      <form onSubmit={(e) => {
+              e.preventDefault(); // EVITA QUE LA PÁGINA SE RECARGUE
+              handleSubmit(onSubmit)(e);
+            }}
+          
+          className="space-y-6">
+            <div>
+              <label className="block text-sm font-medium text-brand-black mb-1">
+                
+              </label>
+              <input 
+               {...register("email")}
+                type="email" 
+                className={`w-full px-4 py-3 rounded-lg border border-brand-gray focus:ring-2 focus:ring-brand-gold 
+                focus:border-transparent outline-none transition-all
+                ${
+                errors.email ? "border-red-500 ring-1 ring-red-500" : "border-brand-gray focus:ring-2 focus:ring-brand-gold"
+              }`}
+                placeholder="ejemplo@correo.com"
+              />
+                          {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-brand-black mb-1">
+                Contraseña
+              </label>
+              <input 
+               {...register("password")}
+                type="password" 
+                className={`w-full px-4 py-3 rounded-lg border border-brand-gray focus:ring-2 focus:ring-brand-gold 
+                :border-transparent outline-none transition-all
+                 ${
+                errors.password ? "border-red-500 ring-1 ring-red-500" : "border-brand-gray focus:ring-2 focus:ring-brand-gold"
+              }`}
+            />
+            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+            
+              
+            </div>
+{/* 
+            <div className="flex items-center justify-end">
+              <a href="#" className="text-sm text-brand-gold hover:underline font-medium">
+                ¿Olvidaste tu contraseña?
+              </a>
+            </div> */}
+
+            <button 
+              type="submit"
+              disabled={isSubmitting}                                        
+              className="w-full bg-brand-gold hover:bg-[#e08e00] text-brand-black font-bold py-3 
+              rounded-lg transition-colors shadow-lg active:scale-[0.98]"
+            >
                {isSubmitting ? "Cargando..." : "Ingresar"}
+             {/*  Iniciar Sesión */}
             </button>
           </form>
         </div>
