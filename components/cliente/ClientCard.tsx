@@ -1,4 +1,4 @@
-import { UserType } from '../../types';
+import { UserType } from '@/types/user';
 
 import { Mail, Phone, IdCard, ShieldCheck, User } from 'lucide-react';
 

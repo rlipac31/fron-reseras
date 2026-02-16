@@ -49,7 +49,7 @@ export default  function DashboardPage({ params }: { params: { slug: string } })
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          <BookingTable data={bookings} />
+        {/*   <BookingTable data={bookings} /> */}
 
           {/* Estado de Canchas (Componente Inline para el ejemplo) */}
           <div className="bg-brand-white rounded-xl shadow-sm border border-brand-gray p-6">

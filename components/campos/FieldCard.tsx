@@ -43,6 +43,11 @@ export default function FieldCard2({ field }: FieldCardProps) {
         });
     };
 
+        //const todayStr = dayjs().format('YYYY-MM-DD');//validacion de fechas no menores al dia de hoy
+    // Calculamos los límites
+        const todayStr = dayjs().format('YYYY-MM-DD');
+        const maxDateStr = dayjs().add(15, 'day').format('YYYY-MM-DD');
+
     // 2. Efecto modificado para re-ejecutarse cuando cambie selectedDate
     useEffect(() => {
         if (!fieldId) return;
@@ -50,6 +55,10 @@ export default function FieldCard2({ field }: FieldCardProps) {
         const loadBookings = async () => {
             console.log(" id campo ::::::::::: ", fieldId)
             setIsLoadingBookings(true);
+           /*  if (dayjs(selectedDate).isBefore(dayjs(), 'day')) {//si no l afecha eleida no des mayor a la de hoy noe permite la ejecucion
+                    setSelectedDate(todayStr); // Resetear a hoy
+                    return;
+                } */
             try {
                 const usuario = await getServerUser();
                 setUser(usuario);
@@ -117,6 +126,22 @@ export default function FieldCard2({ field }: FieldCardProps) {
     };
     /*  fin horarios disponibles */
 
+    /*  eskeleton para hora disponibles */
+
+    const SkeletonSlots = () => {
+  return (
+    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-3">
+      {[1, 2, 3, 4, 5, 6, 7, 8,9,10,11,12,13,14,15].map((i) => (
+        <div 
+          key={i} 
+          className="h-10 w-full bg-brand-gray/50 animate-pulse rounded-xl border border-gray-100"
+        />
+      ))}
+    </div>
+  );
+};
+/* fin de skeleton */
+
     return (
         <div className="bg-brand-white rounded-xl border border-brand-gray shadow-sm overflow-hidden hover:shadow-md transition-all group flex flex-col h-full w-[85vw] mx-auto md:w-full">
             <div className="p-4 flex-grow">
@@ -153,6 +178,8 @@ export default function FieldCard2({ field }: FieldCardProps) {
                         <div className="relative">
                             <input
                                 type="date"
+                                min={todayStr}
+                                max={maxDateStr}  // No permite más de 15 días en el futuro
                                 value={selectedDate}
                                 onChange={(e) => setSelectedDate(e.target.value)}
                                 className="text-[14px] font-bold border border-brand-gray rounded px-2 py-1 outline-none focus:border-brand-gold bg-slate-50 text-brand-black"
@@ -171,6 +198,10 @@ export default function FieldCard2({ field }: FieldCardProps) {
                             </p>
                             <span className="text-[9px] text-brand-gold font-bold">Zona: Lima (GMT-5)</span>
                         </div>
+                     {/* LÓGICA DEL SKELETON */}
+                    {isLoadingBookings ? (
+                        <SkeletonSlots />
+                    ) : (   
 
                         <div className="grid grid-cols-4 sm:grid-cols-5 gap-1.5">
                             {getAvailableSlots().map((slot) => {
@@ -197,6 +228,7 @@ export default function FieldCard2({ field }: FieldCardProps) {
                                 );
                             })}
                         </div>
+                    )}
                     </div>
                     {/*Fin Sección de Slots Disponibles */}
                 </div>
@@ -207,14 +239,17 @@ export default function FieldCard2({ field }: FieldCardProps) {
             <div className="bg-brand-gray/10 px-5 py-3 border-t border-brand-gray flex justify-between items-center mt-auto">
                 <div className="flex items-baseline gap-1">
                     <span className="text-lg font-black text-brand-black">S/ {field.pricePerHour}</span>
-                    <span className="text-[10px] text-gray-500 font-medium uppercase">/ hr</span>
+                    {/* <span className="text-[10px] text-gray-500 font-medium uppercase">/ hr</span> */}
                 </div>
-                <Link href={`/${user?.slug}/dashboard/reservas/save?fieldId=${fieldId}&name=${field.name}&date=${selectedDate}`}>
+              {/*   <Link href={`/${user?.slug}/dashboard/reservas/save?fieldId=${fieldId}&name=${field.name}&date=${selectedDate}`}>
                     <button className="flex items-center gap-2 text-xs font-black text-brand-black bg-brand-gold px-4 py-2 rounded-lg hover:bg-black hover:text-brand-gold transition-all shadow-sm active:scale-95">
                         <PlusCircle size={14} />
                         RESERVAR
                     </button>
-                </Link>
+                </Link> */}
+                <p className="px-2 py-0 text-[12px] bg-brand-black/70 hover:bg-brand-black text-brand-gold mt-1 italic rounded-sm">
+                * Reservas permitidas solo para los próximos 15 días.
+                </p>
             </div>
 
             {/* MODAL CON CONFIRMACION DE INICIO DE RESERVA AL PRESIONAR BOTON HORA */}

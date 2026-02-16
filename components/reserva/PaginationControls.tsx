@@ -37,6 +37,7 @@ export function PaginationControls({ totalResults, currentPage, limit }: Props) 
           onChange={(e) => updateURL({ limit: e.target.value, page: '1' })}
           className="bg-transparent text-xs font-bold outline-none border-b-2 border-brand-gray focus:border-brand-gold py-1"
         >
+          <option value="8">4 por página.</option>
           <option value="8">8 por pág.</option>
           <option value="12">12 por pág.</option>
           <option value="24">24 por pág.</option>

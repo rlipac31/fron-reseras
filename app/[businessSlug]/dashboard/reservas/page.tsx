@@ -1,4 +1,4 @@
-import { CalendarDays } from 'lucide-react';
+import { CalendarDays, FolderDot } from 'lucide-react';
 import BookingCard from '@/components/reserva/BookingCard';
 import { getBookingsConFiltro, getBookingsConPagination } from '@/app/actions/bookings';
 import { DatePicker } from '@/components/reserva/DatePicker';
@@ -7,6 +7,7 @@ import BtnRetry from '@/components/BtnRetry'
 import { PaginationControls } from '@/components/reserva/PaginationControls';
 import { getServerUser } from '@/app/actions/userServer';
 import { redirect } from 'next/navigation';
+import Link from 'next/link';
 
 export default async function ReservasPage({
   searchParams,
@@ -32,18 +33,21 @@ export default async function ReservasPage({
   // Ejecutamos la función que tiene el try/catch
   const { data, meta, error } = await getBookingsConPagination(filter, date, page, limit);
   const bookings= data;
-
-
+/* 
+  */
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
+    
       <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-white p-6 rounded-2xl border border-brand-gray/50 shadow-sm">
-        <div>
+        <div className=''>
+          
           <div className="flex items-center gap-2 mb-1">
             <CalendarDays className="text-brand-gold" size={24} />
             <h1 className="text-2xl font-black text-brand-black uppercase tracking-tighter">
-              Gestión de Reservas
+              Gestión de Reservas 
             </h1>
           </div>
+          
           <p className="text-gray-500 text-xs font-medium">
             Filtro actual: <span className="text-brand-black uppercase">{meta?.appliedFilter || 'Hoy'}</span> 
             — {meta?.totalResults || 0} registros encontrados.
@@ -57,13 +61,33 @@ export default async function ReservasPage({
                 />
             )}
         </div>
+        
+       <div className='h-full flex flex-col items-end-safe justify-between gap-4'>
+        
+              {  user?.role && user?.role =='ADMIN' &&(
+                <Link href={`/${user?.slug}/dashboard/reservas/admin`}>
+                    <button className="mt-[-40px] mb-4  flex items-center justify-center gap-2 bg-brand-gold hover:bg-brand-gold/90
+                     text-brand-black font-bold py-2.5 px-6 rounded-lg transition-all shadow-sm active:scale-95">
+                      <FolderDot size={20} />
+                      Administar Reservas
+                    </button>
+                  </Link> 
+            )}
+        
+         
+            
+             <div className="flex flex-wrap items-end gap-4 w-full lg:w-auto justify-end">
+            <DatePicker />
+            <div className="h-10 w-[1px] bg-brand-gray/50 hidden md:block" />
+            <FilterTabs />
+          </div>
+          </div>     
+       
 
-        <div className="flex flex-wrap items-end gap-4 w-full lg:w-auto justify-end">
-          <DatePicker />
-          <div className="h-10 w-[1px] bg-brand-gray/50 hidden md:block" />
-          <FilterTabs />
-         </div>
+   
       </header>
+
+    
 
       {/* 1. MOSTRAR ERROR AMIGABLE SI EXISTE */}
       {error && (
@@ -74,7 +98,7 @@ export default async function ReservasPage({
     )}
 
       {/* Grid de Reservas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-6">
         {!error && bookings.length > 0 ? (
           bookings.map((booking: any) => (
             <BookingCard key={booking._id} booking={booking} />

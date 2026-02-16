@@ -1,6 +1,7 @@
  // app/actions/assCustomer.ts
 "use server";
-import { bookingRequest, userRequest } from "@/types";
+import { bookingRequest } from "@/types/booking";
+import { userRequest } from "@/types/user";
 import { cookies } from "next/headers";
 
 export async function createCustomer(formData: userRequest) {

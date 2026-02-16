@@ -1,10 +1,11 @@
 import Link from "next/link";
-
-export default function NotFound() {
+import { useUser } from "@/context/UserContext";
+import { getServerUser } from "./actions/userServer";
+export default async function NotFound() {
 
   
-const nameSlug = process.env.NEXT_PUBLIC_NAME_NEGOCIO;
-const businessId =process.env.NEXT_PUBLIC_ID_NEGOCIO; 
+  const user =  await getServerUser()
+
 
   return (
     <div className="min-h-screen bg-brand-black flex flex-col items-center justify-center p-6 text-center">
@@ -22,7 +23,7 @@ const businessId =process.env.NEXT_PUBLIC_ID_NEGOCIO;
         </p>
         
         <Link 
-          href={`/${nameSlug}/dashboard`}
+          href={`/${user?.slug}/dashboard`}
           className="inline-block bg-brand-gold text-brand-black px-8 py-3 rounded-lg font-bold uppercase hover:bg-white transition-colors duration-300 shadow-lg shadow-brand-gold/20"
         >
           Volver al Dashboard
@@ -31,7 +32,7 @@ const businessId =process.env.NEXT_PUBLIC_ID_NEGOCIO;
 
       {/* Footer decorativo */}
       <div className="mt-12 text-brand-gray/30 text-sm font-mono">
-        ARENA {nameSlug?.toUpperCase()} • SISTEMA DE GESTIÓN
+        ARENA {user?.slug.toUpperCase()} • SISTEMA DE GESTIÓN
       </div>
     </div>
   );

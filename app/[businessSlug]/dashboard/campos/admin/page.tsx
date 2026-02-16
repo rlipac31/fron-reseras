@@ -8,6 +8,7 @@ import { notFound } from 'next/navigation';
 import { deleteField, getFieldsCompleta, updateStateField } from '@/app/actions/fields';
 import { useUser } from '@/context/UserContext';
 import { SoccerField } from '@/types/field';
+import { redirect } from 'next/navigation';
 
 const AdminCampos = () => {
   const { user } = useUser();
@@ -25,7 +26,7 @@ const AdminCampos = () => {
   // 2. Validación de Seguridad Correcta
   // Nota: useEffect se encarga de la lógica, pero el renderizado se bloquea aquí
   if (user && user.role !== 'ADMIN') {
-    notFound(); 
+    redirect(`/${user?.slug}/unauthorized`);
     return null;
   }
 
@@ -96,24 +97,6 @@ const AdminCampos = () => {
       <p className="text-sm font-bold text-gray-500 uppercase">Cargando campos...</p>
     </div>
   );
-
-/*   return (
-    <div className="min-h-screen p-4 md:p-8 bg-gray-50">
-      
-      {campos.map((campo) => (
-          <tr key={campo._id.toString()}> 
-             <td>{campo.name}</td>
-          </tr>
-      ))}
-    </div>
-  );
-  
-}; */
-            
-
-
-{/* ... Tu JSX se mantiene igual, ahora VS Code reconocerá campo.name, campo._id, etc. ... */}
-      {/* Ejemplo de uso seguro en el map: */}
 
 
 

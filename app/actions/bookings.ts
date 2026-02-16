@@ -74,48 +74,7 @@ export async function getBookingsConFiltro(filter?: string, date?: string) {
   }
 }
 
-/* async function getBookings2() {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value;
-  const userId = cookieStore.get('id_user')?.value;
 
-
-  const res = await fetch('http://localhost:4000/api/bookings', {
-    headers: {
-      'Content-Type': 'application/json',
-      // credentials: "include", 
-    },
-    next: { revalidate: 0 } // No cacheamos para ver reservas en tiempo real
-  });
-  console.log("reserva rest::  ", res)
-
-  if (!res.ok) return { data: [] };
-  return res.json();
-} */
-
-/* export async function getBookingsConPagination(filter?: string, date?: string, page = '1', limit = '12') {
-  const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value;
-  // ... cookies y token ...
-  const params = new URLSearchParams();
-  if (filter) params.append('filter', filter);
-  if (date) params.append('date', date);
-  params.append('page', page);
-  params.append('limit', limit);
-
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings?${params.toString()}`, {
-    headers: { 'x-token': `${token}` },
-    cache: 'no-store'
-  });
-  if(!res.ok){
-    return { data:[],msg:"hubo un error en la conecion"}
-  }
-  const result = await res.json();
-  return { 
-    data: result.data || [], 
-    meta: result.meta || { totalResults: 0, page: 1, limit: 12 } 
-  };
-} */
 export async function getBookingsConPagination(filter?: string, date?: string, page = '1', limit = '12') {
   try {
     const cookieStore = await cookies();
@@ -278,7 +237,9 @@ export async function getBookingId(bookingId: string) {
 
 
 
-export async function cancelBookingAction(id: string, token: string) {
+export async function cancelBookingAction(id: string) {
+   const cookieStore = await cookies();
+  const token = cookieStore.get('token')?.value;
   if (!id || !token) {
     return { success: false, message: "Faltan datos requeridos" };
   }

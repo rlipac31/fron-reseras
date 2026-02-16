@@ -1,6 +1,6 @@
 // app/actions/payments.ts
 "use server";
-import { PaymentDataRequest } from "@/types";
+import { PaymentDataRequest } from "@/types/booking";
 import { cookies } from "next/headers";
 
 export async function createPayment(formData: PaymentDataRequest) {

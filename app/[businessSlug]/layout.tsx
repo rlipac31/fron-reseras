@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { Toaster } from 'sonner';
 import Sidebar from '../../components/sidebar';
 import MobileNavbar from "@/components/MobileNavbar";
+import { redirect } from 'next/navigation';
 
 import { getServerUser } from '@/app/actions/userServer'; // La función que creamos antes
 
@@ -24,19 +25,15 @@ export default async function SlugLayout({
   
   // 1. Obtenemos los datos decodificando el token en el servidor (Sin fetch extra)
   const userData = await getServerUser();
-  console.log("data::: desde slugLayout ", userData)
+  //console.log("data::: desde slugLayout ", userData)
 
   // 2. VALIDACIÓN DE SEGURIDAD: 
 
  
   if (userData && userData.slug !== businessSlug) {
      console.log("Acceso no autorizado para este slug");
-     // redirect(`/${userData.slug}/unauthorized`); // Opcional
+     redirect(`/${userData.slug}/unauthorized`); // Opcional
   }
-
-
-
-
 
 
   return (

@@ -1,11 +1,11 @@
 //interfaces
-import { Booking } from '../../types';
+import { BookingType } from '../../types/booking';
 //icons
 import { Clock, MapPin, User, Calendar, CreditCard } from 'lucide-react';
 //routes
 import Link from 'next/link';
 
-export default function BookingsLista({ booking }: { booking: Booking }) {
+export default function BookingsLista({ booking }: { booking: BookingType }) {
 
    //console.log("desde cardBoking", booking)
    const slug = booking.businessId?.slug;

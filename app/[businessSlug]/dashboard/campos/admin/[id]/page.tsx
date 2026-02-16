@@ -2,11 +2,38 @@
 
 import React, { useState, useEffect } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { Save, ArrowLeft, Lock, Unlock, Info, DollarSign, Users, MapPin, Loader2, Banknote } from 'lucide-react';
-// Importa tu función de actualización aquí (ej: updateField)
-import { getfieldId, getUpdatefield  } from '@/app/actions/fields';
+import { Save, ArrowLeft, Lock, Unlock, Info, MapPin, Loader2, Banknote, Users } from 'lucide-react';
+import { getfieldId, getUpdatefield } from '@/app/actions/fields';
 import { useUser } from '@/context/UserContext';
-import { SoccerField } from '@/types/field';
+
+// ... Interfaz SoccerField y FieldInputProps se mantienen igual
+export interface SoccerField {
+  _id: string;
+  name: string;
+  description: string;
+  location: string;
+  capacity: number;
+  pricePerHour: number;
+  available: boolean;
+  state: boolean;
+  businessId: string;
+  bookings:string;
+  createdAt: string;
+  updatedAt: string;
+  __v: number;
+}
+
+interface FieldInputProps {
+  label: string;
+  name: keyof SoccerField; // Obligamos a que el name sea una llave de SoccerField
+  value: string | number | undefined;
+  icon: React.ReactNode;
+  isEditable: boolean;
+  onToggle: () => void;
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  type?: string;
+}
+
 
 const EditCampo = () => {
   const router = useRouter();
@@ -14,11 +41,10 @@ const EditCampo = () => {
   const idfield = params.id;
   const { user } = useUser();
 
-  //const [campo, setCampo] = useState(null);
-    // 1. Tipado de estados
-  const [campo, setCampo] = useState<SoccerField[]>([]);
+  // 1. UNIFICAMOS EL ESTADO: Solo necesitamos "campo"
+  const [campo, setCampo] = useState<SoccerField | null>(null);
   const [loading, setLoading] = useState(true);
-  const [isEditable, setIsEditable] = useState({});
+  const [isEditable, setIsEditable] = useState<Partial<Record<keyof SoccerField, boolean>>>({});
   const [saving, setSaving] = useState(false);
   const [mensage, setMensage] = useState('');
 
@@ -28,10 +54,9 @@ const EditCampo = () => {
     if (!fieldId) return;
     const loadField = async () => {
       try {
-        // Asumo que getUpdateField es tu función de carga por ID
         const response = await getfieldId(fieldId); 
-        console.log("response edit ", response)
         if (response.success) {
+          // Guardamos el objeto directamente
           setCampo(response.data.field);
         }
       } catch (error) {
@@ -43,43 +68,60 @@ const EditCampo = () => {
     loadField();
   }, [fieldId]);
 
-  const toggleLock = (fieldName) => {
-    setIsEditable(prev => ({ ...prev, [fieldName]: !prev[fieldName] }));
-  };
-
-  const handleChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setCampo(prev => ({
-      ...prev,
-      [name]: type === 'checkbox' ? checked : value
+  const toggleLock = (fieldName: keyof SoccerField) => {
+    setIsEditable(prev => ({ 
+      ...prev, 
+      [fieldName]: !prev[fieldName] 
     }));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSaving(true);
-    // Aquí llamarías a tu API: const res = await updateFieldAction(fieldId, campo);
-    if (!fieldId) return;
-    const res = getUpdatefield(fieldId, campo);
-    if (res.success) {
-          console.log("se actualizao correctamente")
-           setMensage("el campo se acualizo correctamente")
-        }
-   
-    // Simulación de guardado
-    setTimeout(() => {
-        setSaving(false);
-        setMensage('')
-        router.push(`/${user?.slug}/dashboard/campos/admin`);
-    }, 100);
+  // 2. CORREGIMOS EL HANDLE CHANGE: Actualiza "setCampo"
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value, type } = e.target;
+    const isChecked = (e.target as HTMLInputElement).checked;
+
+    setCampo(prev => {
+      if (!prev) return null;
+      return {
+        ...prev,
+        [name]: type === 'checkbox' ? isChecked : value
+      };
+    });
   };
-console.log("campo desde editar ", campo)
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!fieldId || !campo) return;
+
+    setSaving(true);
+    try {
+      // 3. ENVIAMOS EL ESTADO ACTUALIZADO (campo)
+      const res = await getUpdatefield(fieldId, campo);
+      
+      if (res.success) {
+        setMensage("¡El campo se actualizó correctamente!");
+        setTimeout(() => {
+          setSaving(false);
+          setMensage('');
+          router.push(`/${user?.slug}/dashboard/campos/admin`);
+        }, 500);
+      } else {
+        setMensage("Error al actualizar");
+        setSaving(false);
+      }
+    } catch (error) {
+      console.error(error);
+      setSaving(false);
+    }
+  };
+
   if (loading) return (
     <div className="flex flex-col items-center justify-center min-h-screen gap-4">
       <Loader2 className="animate-spin text-brand-gold" size={40} />
-      <p className="text-sm font-bold text-brand-black uppercase">Cargando datos del servidor...</p>
+      <p className="text-sm font-bold text-brand-black uppercase">Cargando datos...</p>
     </div>
   );
+
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] p-4 md:p-10">
@@ -124,12 +166,13 @@ console.log("campo desde editar ", campo)
           <form onSubmit={handleSubmit} className="p-8 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Nombre */}
+             
               <FieldInput 
                 label="Nombre de la Cancha"
-                name="name"
+                name="name" // Si escribes "nombree" dará error, lo cual es genial
                 value={campo?.name}
-                icon={<Info size={16}/>}
-                isEditable={isEditable.name}
+                icon={<Info size={18} />}
+                isEditable={!!isEditable.name}
                 onToggle={() => toggleLock('name')}
                 onChange={handleChange}
               />
@@ -140,7 +183,7 @@ console.log("campo desde editar ", campo)
                 name="location"
                 value={campo?.location}
                 icon={<MapPin size={16}/>}
-                isEditable={isEditable.location}
+                isEditable={!!isEditable.location}
                 onToggle={() => toggleLock('location')}
                 onChange={handleChange}
               />
@@ -152,7 +195,7 @@ console.log("campo desde editar ", campo)
                 type="number"
                 value={campo?.pricePerHour}
                 icon={<Banknote size={16}/>}
-                isEditable={isEditable.pricePerHour}
+                isEditable={!!isEditable.pricePerHour}
                 onToggle={() => toggleLock('pricePerHour')}
                 onChange={handleChange}
               />
@@ -164,7 +207,7 @@ console.log("campo desde editar ", campo)
                 type="number"
                 value={campo?.capacity}
                 icon={<Users size={16}/>}
-                isEditable={isEditable.capacity}
+                isEditable={!!isEditable.capacity}
                 onToggle={() => toggleLock('capacity')}
                 onChange={handleChange}
               />
@@ -209,29 +252,47 @@ console.log("campo desde editar ", campo)
   );
 };
 
-// Sub-componente para los inputs y no repetir código
-const FieldInput = ({ label, name, value, icon, isEditable, onToggle, onChange, type = "text" }) => (
+
+
+const FieldInput = ({ 
+  label, 
+  name, 
+  value, 
+  icon, 
+  isEditable, 
+  onToggle, 
+  onChange, 
+  type = "text" 
+}: FieldInputProps) => (
   <div className="flex flex-col gap-2">
-    <label className="text-xs font-bold text-gray-500 uppercase ml-1">{label}</label>
+    <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-wider">
+      {label}
+    </label>
     <div className="flex gap-2">
       <div className="relative flex-1">
-        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400">{icon}</div>
+        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+          {icon}
+        </div>
         <input
           name={name}
           type={type}
-          value={value || ""}
+          value={value ?? ""}
           onChange={onChange}
           disabled={!isEditable}
-          className={`w-full pl-10 pr-4 py-3 rounded-xl border text-sm transition-all outline-none
+          className={`w-full pl-10 pr-4 py-3 rounded-2xl border-2 text-sm transition-all outline-none
             ${isEditable 
-              ? 'border-brand-gold bg-white ring-4 ring-brand-gold/5 font-medium' 
-              : 'border-gray-100 bg-gray-50 text-gray-400 cursor-not-allowed'}`}
+              ? 'border-brand-gold bg-white shadow-lg shadow-brand-gold/5 text-brand-black' 
+              : 'border-brand-gray bg-slate-50 text-slate-400 cursor-not-allowed'}`}
         />
       </div>
       <button
         type="button"
         onClick={onToggle}
-        className={`p-3 rounded-xl border transition-all ${isEditable ? 'bg-brand-gold border-brand-gold text-brand-black shadow-md shadow-brand-gold/20' : 'bg-white border-gray-200 text-gray-400'}`}
+        className={`p-3 rounded-2xl border-2 transition-all cursor-pointer ${
+          isEditable 
+            ? 'bg-brand-gold border-brand-gold text-brand-black shadow-md shadow-brand-gold/20' 
+            : 'bg-white border-brand-gray text-slate-300 hover:border-brand-black hover:text-brand-black'
+        }`}
       >
         {isEditable ? <Unlock size={18}/> : <Lock size={18}/>}
       </button>

@@ -1,11 +1,11 @@
 //interfaces
-import { Booking } from '../../types';
+import { BookingType } from '../../types/booking';
 //icons
-import { Clock, MapPin, User, Calendar, CreditCard } from 'lucide-react';
+import { Clock, MapPin, User, Calendar, CreditCard, Mail } from 'lucide-react';
 //routes
 import Link from 'next/link';
 
-export default function BookingCard({ booking }: { booking: Booking }) {
+export default function BookingCard({ booking }: { booking: BookingType }) {
 
    const slug = booking.businessId?.slug;
    console.log(" name bookind card ", booking)
@@ -86,17 +86,20 @@ const stateColors = {
   {/*     <span className="text-[11px] font-bold text-gray-400 uppercase">
             duracion: {booking.durationInMinutes} min
           </span> */}
-        <div className="mt-4 flex items-center justify-between">
+        <div className="mt-4 flex items-center justify-between  ">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-full bg-brand-gray/20 flex items-center justify-center">
               <User size={18} className="text-brand-gold" />
             </div>
-           {/*  <span className="text-xs font-medium text-gray-600 italic">{booking.userId.name}</span>
-             <span className="text-xs font-medium text-gray-600 italic">{booking.userId?.email}</span> */}
+            <span className="text-xs font-medium text-gray-600 italic">{booking.userId.name}</span>
           </div>
-         
         </div>
-     
+        <div className='flex  flex-row gap-1'>
+            <Mail size={18} className="text-brand-gold" />
+             <span className="text-xs font-medium text-gray-600 italic">{booking.userId?.email}</span> 
+        </div>
+          
+         
       </div>
 
       {/* Acciones Rápidas */}
@@ -111,7 +114,7 @@ const stateColors = {
             ) : (
                 /* VISTA CUANDO ESTÁ PENDIENTE */
                 <div className="flex gap-2 w-full">
-                 <button 
+                {/*  <button 
                     className="flex-1 text-[10px] font-bold bg-brand-black text-brand-gold py-2 rounded uppercase hover:bg-brand-black/90 transition-all"
                 >
                     Cancelar
@@ -124,7 +127,7 @@ const stateColors = {
                     <button className="w-full text-[10px] font-bold bg-success/80 text-brand-black py-2 rounded uppercase hover:bg-success transition-all">
                     Pagar S/ {booking.totalPrice}
                     </button>
-                </Link> 
+                </Link>  */}
                 </div>
             )}
             </div>

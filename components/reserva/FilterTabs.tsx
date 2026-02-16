@@ -4,38 +4,46 @@ import { useRouter, useSearchParams } from 'next/navigation';
 export function FilterTabs() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const currentFilter = searchParams.get('filter') || 'today';
+  
+  // Si no hay filtro ni fecha, el activo por defecto es '' (Todos)
+  const currentFilter = searchParams.get('filter') || (searchParams.get('date') ? 'custom' : '');
 
   const filters = [
     { label: 'Hoy', value: 'today' },
     { label: '7 Días', value: '7days' },
-    { label: 'Este Mes', value: 'month' },
+    { label: 'Mes', value: 'month' },
     { label: 'Todos', value: '' },
   ];
 
   const handleFilter = (val: string) => {
-    const params = new URLSearchParams(searchParams);
-    if (val) params.set('filter', val);
-    else params.delete('filter');
-    params.delete('date'); // Limpiar fecha si se elige un filtro rápido
+    const params = new URLSearchParams(); // Limpiamos todo para un filtro limpio
+    if (val) {
+      params.set('filter', val);
+    }
+    params.set('page', '1');
     router.push(`?${params.toString()}`);
   };
 
   return (
-    <div className="flex bg-brand-gray/20 p-1 rounded-xl w-fit">
-      {filters.map((f) => (
-        <button
-          key={f.value}
-          onClick={() => handleFilter(f.value)}
-          className={`px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${
-            currentFilter === f.value 
-            ? 'bg-brand-black text-brand-gold shadow-sm' 
-            : 'text-gray-500 hover:text-brand-black'
-          }`}
-        >
-          {f.label}
-        </button>
-      ))}
+    <div className="flex flex-col gap-1">
+      <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-wider">
+        Filtros Rápidos
+      </label>
+      <div className="flex bg-brand-gray/30 p-1 rounded-xl w-fit border border-brand-gray">
+        {filters.map((f) => (
+          <button
+            key={f.value}
+            onClick={() => handleFilter(f.value)}
+            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 ${
+              currentFilter === f.value 
+              ? 'bg-brand-black text-brand-gold shadow-md scale-105' 
+              : 'text-gray-500 hover:text-brand-black hover:bg-white/50'
+            }`}
+          >
+            {f.label}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }

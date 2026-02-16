@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import ClientCard from '@/components/cliente/ClientCard';
 import { Users, UserPlus, Lock, AlertCircle } from 'lucide-react';
-import { UserType } from '@/types';
+import { UserType } from '@/types/user';
 import Link from 'next/link';
 import { getServerUser } from '@/app/actions/userServer';
 import { redirect } from 'next/navigation';

@@ -19,3 +19,12 @@ export interface UserType {
   state: boolean;
 }
 
+//create user method
+export interface userRequest {
+  name: string;
+  email: string;
+  password: string;
+  dni?: string;
+  phone?: string;
+  businessId: string;
+}

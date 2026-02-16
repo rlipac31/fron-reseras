@@ -31,9 +31,9 @@ export interface PaymentDataRequest {
  */
 
 //bookins
-export interface Booking {
+export interface BookingType {
   _id: string;
-  userId: { name: string };
+  userId: { name: string;email:string };
   fieldId: { name: string; location: string };
   businessId: { slug: string; name: string; id: string; };
   startTime: string;
@@ -48,22 +48,7 @@ export interface Booking {
 // types/booking.ts
 //export type PaymentMethod = ['YAPE' , 'CASH' , 'CREDIT_CARD'];
 
-/* //BokingFrom azul
-export interface BookingFormInput {
-  fieldId: string;
-  idUser: string;
-  startTime: string; // ISO String
-  durationInMinutes: number;
-  paymentMethod: PaymentMethod;
-  amout: Number;
-  descuento?: number;
-  total: number;
-  idCustomer?: string;
-  dniCustomer?: string;
-  nameCustomer?: string;
-}
 
- */
 
 // Nota: 'number' en minúscula siempre
 export interface BookingFormInput {
@@ -88,6 +73,7 @@ export interface bookingRequest {
   starTime: Date;
   durationInMinutes: number;
 }
+
 
 
 

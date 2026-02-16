@@ -30,8 +30,9 @@ export function UserProvider({ children, initialUser }: { children: ReactNode, i
       const verifySession = async () => {
         try {
        // console.log("ejecutando getMe....debtreo del try")
-
-          const res = await fetch(`/api-backend/auth/me`, {
+        const url =`/api-backend/auth/me`;//production
+        const urlLocal=`${process.env.NEXT_PUBLIC_API_URL}/auth/me`;
+          const res = await fetch(`${urlLocal}`, {
             method: "GET",
             credentials: "include", 
             

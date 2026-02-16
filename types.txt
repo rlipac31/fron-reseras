@@ -16,7 +16,7 @@ export interface UserType {
 
 export interface Booking {
   _id: string;
-  userId: { name: string };
+  userId: { name: string; email:string };
   fieldId: { name: string; location: string };
   businessId: { slug: string; name: string; id: string; };
   startTime: string;

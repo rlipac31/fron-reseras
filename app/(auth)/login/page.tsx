@@ -57,8 +57,9 @@ type LoginFormValues = z.infer<typeof loginSchema>;
    // console.log("intento de loguearse....")
 
   try {
-
-       const res = await fetch(`/api-backend/auth`, {
+        const url =`/api-backend/auth`;
+        const urlLocal=`${process.env.NEXT_PUBLIC_API_URL}/auth`;//local
+       const res = await fetch(`${url}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),

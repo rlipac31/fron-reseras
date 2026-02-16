@@ -2,7 +2,7 @@
 
 import { useEffect, Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { CheckCircle2, ReceiptText, Clock, Hash, Share2 } from "lucide-react";
+import { CheckCircle2, ReceiptText, Clock, Hash, Share2, Link } from "lucide-react";
 import { useUser } from "@/context/UserContext";
 import { SearchParams } from "next/dist/server/request/search-params";
 //componente comprobante
@@ -86,6 +86,7 @@ const formatTime = (dateString: string | null) => {
   //////////
   /*  Boton compartir*/
 
+
   const handleShare = async () => {
     // Formateamos los datos para el mensaje
     //  const formattedDate = dayjs().format('dddd D [de] MMMM');
@@ -138,6 +139,7 @@ const formatTime = (dateString: string | null) => {
   /* fin boton compartir */
 
   return (
+   <div className="flex flex-row gap-10 items-center"> 
     <div className="bg-brand-white/5 p-2  md:p-8 rounded-2xl border border-brand-gold/20 text-center max-w-md w-full animate-in fade-in zoom-in duration-500">
       <div className="flex justify-center mb-6">
         <div className="bg-brand-gold/10 p-4 rounded-full">
@@ -211,29 +213,35 @@ const formatTime = (dateString: string | null) => {
         </div>
         Compartir con mi equipo
       </button>
-
-      <BookingTicket booking={dataTikeck} />
+         <button
+            onClick={()=> router.push(`/${user?.slug}/dashboard/admin/campos`)}
+            className="bg-brand-gold hover:bg-amber-500 text-brand-black px-4 py-2 rounded-xl mt-4 uppercase font-bold text-[12px]"
+          >
+            volver a campos
+          </button> 
+     
     </div>
-
-
+  <BookingTicket booking={dataTikeck} />
+</div>
 
   );
 }
 
 // ... mantener el export default SuccessPage con Suspense igual que antes
 export default function SuccessPage() {
+  const router = useRouter()
+  const { user }=useUser()
   return (
-    <div className="min-h-screen bg-brand-black flex flex-col items-center justify-center p-4  rounded-xl">
-      <Suspense fallback={
-        <div className="text-brand-gold animate-pulse uppercase font-bold tracking-widest">
-          Cargando...
-        </div>
-      }>
+    <div className="min-h-screen bg-brand-black flex flex-row items-center justify-center p-4 border-green-700  rounded-xl">
+      
+       
+        <Suspense fallback={
+          <div className="text-brand-gold animate-pulse uppercase font-bold tracking-widest">
+            Cargando...
+          </div>
+        }>
 
         <SuccessContent />
-
-
-
       </Suspense>
     </div>
   );
