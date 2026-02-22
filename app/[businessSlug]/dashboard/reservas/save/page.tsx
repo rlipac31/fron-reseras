@@ -45,7 +45,7 @@ export default async function SaveReservationPage({
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-brand-white/60">Precio por hora:</span>
-                <span className="text-brand-gold font-bold">S/ 120.00</span>
+                <span className="text-brand-gold font-bold">S/ {campo.pricePerHour}</span>
               </div>
             </div>
           </section>

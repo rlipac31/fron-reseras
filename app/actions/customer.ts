@@ -12,19 +12,23 @@ export async function createCustomer(formData: userRequest) {
       throw new Error(  "Eno existe token en la peticion");
   } 
   try {
-
-      const res = await fetch(`${process.env.NEXT_PUBLIC_API_UR}/users/add-customer`, {
+      const urlLocal=`${process.env.NEXT_PUBLIC_API_URL}/users/add-customer`;
+      console.log("url desde action customer: ", urlLocal);
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/users/add-customer`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
+            "x-token": token || "", // Tu header de token
           },
           // CLAVE: Esto le dice al navegador que envíe las cookies seguras automáticamente
-          credentials: "include", 
+         // credentials: "include", 
           body: JSON.stringify(formData),
       });
     if (!res.ok) {
       const errorData = await res.json();
-      throw new Error(errorData.message || "Error al procesar el pago");
+      console.log("error desde action customer: ", errorData);
+     // throw new Error(errorData.message ||`error tipo: ${res}`);
+     return { success: false, error: errorData.message || `Error al crear el cliente. Status: ${res.status}` };
     }
 
     return { success: true };

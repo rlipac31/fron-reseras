@@ -29,12 +29,13 @@ export function FilterTabs() {
       <label className="text-[10px] font-black text-slate-400 uppercase ml-1 tracking-wider">
         Filtros Rápidos
       </label>
-      <div className="flex bg-brand-gray/30 p-1 rounded-xl w-fit border border-brand-gray">
+     {/*  <div className="flex bg-brand-gray/30 p-1 rounded-xl w-fit border border-brand-gray "> */}
+     <div className="flex bg-brand-gray/30 p-1 rounded-xl w-fit">
         {filters.map((f) => (
           <button
             key={f.value}
             onClick={() => handleFilter(f.value)}
-            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all duration-200 ${
+            className={`px-2 py-1 md:px-4 md:py-2 rounded-lg text-[11px] md:text-xs font-bold transition-all duration-200 ${
               currentFilter === f.value 
               ? 'bg-brand-black text-brand-gold shadow-md scale-105' 
               : 'text-gray-500 hover:text-brand-black hover:bg-white/50'

@@ -2,16 +2,7 @@
 
 "6985fd2775586eb5bb1b75d4"
 // cliente
-export interface UserType {
-  uid: string;
-  name: string;
-  email: string;
-  dni: string;
-  phone: string;
-  role: 'ADMIN' | 'USER' | 'CUSTOMER';
-  state: boolean;
-  createdAt: string;
-}
+
 //bookins
 
 export interface Booking {
@@ -62,24 +53,9 @@ export interface PaymentDataRequest {
 
 
 
-//create bookings method
-export interface bookingRequest {
-  userId: string;
-  fieldId: string;
-  starTime: Date;
-  durationInMinutes: number;
-}
 
 
-//create user method
-export interface userRequest {
-  name: string;
-  email: string;
-  password: string;
-  dni?: string;
-  phone?: string;
-  businessId: string;
-}
+
 
 // Tipos para Canchas
 export interface Cancha {

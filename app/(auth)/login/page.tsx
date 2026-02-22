@@ -59,7 +59,8 @@ type LoginFormValues = z.infer<typeof loginSchema>;
   try {
         const url =`/api-backend/auth`;
         const urlLocal=`${process.env.NEXT_PUBLIC_API_URL}/auth`;//local
-       const res = await fetch(`${url}`, {
+        console.log("url local ", urlLocal)
+       const res = await fetch(`${urlLocal}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(data),

@@ -1,7 +1,7 @@
 import { UserProvider } from '@/context/UserContext';
 import { cookies } from 'next/headers';
 import { Toaster } from 'sonner';
-import Sidebar from '../../components/sidebar';
+import Sidebar from '../../components/Sidebar';
 import MobileNavbar from "@/components/MobileNavbar";
 import { redirect } from 'next/navigation';
 

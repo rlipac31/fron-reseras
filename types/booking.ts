@@ -1,4 +1,45 @@
 
+/* export interface userIdBookingId{
+  name:string;
+  uid:string;
+}
+export interface fieldIdBoookingId{
+  _id:string;
+  neme:string;
+  location:string;
+  pricePerHour:number;
+}
+	
+ */
+
+/* export interface BookingIdResponse {
+	_id:string;
+  userId:userIdBookingId;
+  fieldId:fieldIdBoookingId;
+	startTime: Date;
+	durationInMinutes: number;
+	endTime:Date;
+	totalPrice: number;
+	state: string;
+	businessId: string;
+	createdAt: Date;
+	updatedAt: Date;
+	__v: number;
+}
+ */
+
+export interface BookingIdResponse {
+  _id: string;
+  userId: { name: string; uid: string };
+  fieldId: { _id: string; name: string; location: string; pricePerHour: number };
+  startTime: string; // Viene como string ISO de la API
+  durationInMinutes: number;
+  endTime: string;
+  totalPrice: number;
+  state: 'PENDING' | 'CONFIRMED' | 'CANCELLED' | 'COMPLETED';
+  businessId: string;
+}
+
 //payment method
 export interface PaymentDataRequest {
   bookingId?: string;
@@ -14,21 +55,6 @@ export interface PaymentDataRequest {
 }
 
 
-//BokingFrom azul
-/* export interface BookingFormInput {
-  fieldId: string;
-  idUser: string;
-  startTime: string; // ISO String
-  durationInMinutes: number;
-  paymentMethod: PaymentMethod;
-  amout: Number;
-  descuento: Number;
-  total: Number;
-  idCustomer?: string;
-  dniCustomer?: string;
-  nameCustomer?: string;
-}
- */
 
 //bookins
 export interface BookingType {
@@ -102,4 +128,50 @@ export interface FormularioReserva {
   startTime: Date;
   durationInMinutes: number;
 }
+
+
+
+// response reservas por campo
+
+export interface userIdBookingsByField{
+  _id:string;
+  name:string;
+  email:string;
+  phone:string;
+
+}
+export interface fieldIdBoookingByField{
+  _id:string;
+  neme:string;
+  location:string;
+}
+	
+export interface dataBookisByField{
+  _id:string;
+  userId:userIdBookingsByField;
+  fieldId:fieldIdBoookingByField;
+  startTime: Date;
+	durationInMinutes: number;
+	endTime:Date;
+	totalPrice: number;
+	state: string;
+	businessId: string;
+	createdAt: Date;
+	updatedAt: Date;
+
+}
+
+export interface metadataBookingByField{
+    requestedDate: Date;
+		fieldId: string;
+		businessId:string;
+}
+
+export interface bookingsByFieldResponse{
+  status:string;
+  results:number;
+  metadata:bookingsByFieldResponse;
+  data:dataBookisByField;
+}
+
 

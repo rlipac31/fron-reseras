@@ -1,0 +1,138 @@
+"use client";
+import { useState } from 'react';
+import { CheckCircle2, Loader2 } from 'lucide-react';
+import { createCustomer } from '@/app/actions/customer';
+import { useRouter } from 'next/navigation';
+import { useUser } from '@/context/UserContext';
+
+export default function UserForm({ businessId }: { businessId: string }) {
+    const [loading, setLoading] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const router = useRouter();
+    const { user } = useUser();
+
+    // 1. CREAMOS EL ESTADO PARA EL FORMULARIO
+    const [formData, setFormData] = useState({
+        name: '',
+        email: '',
+        password: '',
+        dni: '',
+        phone: ''
+    });
+
+    // 2. FUNCIÓN PARA CAPTURAR LOS CAMBIOS
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value // Actualiza solo el campo que cambió
+        }));
+    };
+
+    const handleSubmit = async () => {
+        setLoading(true);
+        // Enviamos los datos del estado formData
+        const result = await createCustomer({ ...formData, businessId });
+
+        if (result.success) {
+            setLoading(false);
+            setShowSuccess(true);
+            setTimeout(() => {
+                router.push(`/${user?.slug}/dashboard/customers`);
+                router.refresh();
+            }, 1000);
+        } else {
+            setLoading(false);
+            alert("Error: " + result.error);
+        }
+    };
+
+    return (
+        <div className="relative bg-brand-white">
+            {/* ... Modal de éxito se mantiene igual ... */}
+
+            <div className="bg-brand-white p-6 rounded-xl border border-brand-gray shadow-sm w-90 max-w-md mx-auto">
+                <h2 className="text-xl font-bold text-brand-black mb-6 uppercase tracking-tight border-b pb-2">
+                    Registrar Usuario
+                </h2>
+
+                {/* CAMPO: NOMBRE */}
+                <div className="space-y-1 mb-2">
+                    <label className="text-[10px] font-bold text-gray-500 uppercase ml-1">Nombre usuario</label>
+                    <input
+                        type='text'
+                        name="name" // El name debe coincidir con la llave en el estado
+                        value={formData.name} // Ahora depende del estado
+                        onChange={handleChange} // Permite escribir
+                        className="w-full px-4 py-2 border border-brand-gray rounded-lg text-sm focus:ring-2 focus:ring-brand-primary outline-none"
+                        placeholder='Tu nombre'
+                    />
+                </div>
+
+                {/* CAMPO: EMAIL */}
+                <div className="space-y-1 mb-2">
+                    <label className="text-[10px] font-bold text-gray-500 uppercase ml-1">Email</label>
+                    <input
+                        type='email'
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-brand-gray rounded-lg text-sm focus:ring-2 focus:ring-brand-primary outline-none"
+                        placeholder='tu@email.com'
+                    />
+                </div>
+
+                {/* CAMPO: PASSWORD */}
+                <div className="space-y-1 mb-2">
+                    <label className="text-[10px] font-bold text-gray-500 uppercase ml-1">Password</label>
+                    <input
+                        type='password'
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-brand-gray rounded-lg text-sm focus:ring-2 focus:ring-brand-primary outline-none"
+                        placeholder='Mínimo 6 caracteres'
+                    />
+                </div>
+
+                {/* CAMPO: DNI */}
+                <div className="space-y-1 mb-2">
+                    <label className="text-[10px] font-bold text-gray-500 uppercase ml-1">DNI (Opcional)</label>
+                    <input
+                        type='text'
+                        name="dni"
+                        value={formData.dni}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-brand-gray rounded-lg text-sm focus:ring-2 focus:ring-brand-primary outline-none"
+                        placeholder='Número de documento'
+                    />
+                </div>
+
+                {/* CAMPO: TELÉFONO */}
+                <div className="space-y-1 mb-2">
+                    <label className="text-[10px] font-bold text-gray-500 uppercase ml-1">Teléfono</label>
+                    <input
+                        type='text'
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        className="w-full px-4 py-2 border border-brand-gray rounded-lg text-sm focus:ring-2 focus:ring-brand-primary outline-none"
+                        placeholder='999 999 999'
+                    />
+                </div>
+
+                <button
+                    onClick={handleSubmit}
+                    disabled={loading}
+                    className="mt-4 w-full bg-brand-black text-brand-gold font-black py-4 rounded-xl uppercase tracking-widest hover:bg-brand-black/90 disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-lg shadow-brand-black/20"
+                >
+                    {loading ? (
+                        <Loader2 className="animate-spin" size={20} />
+                    ) : (
+                        <><CheckCircle2 size={18} /> Guardar Usuario</>
+                    )}
+                </button>
+            </div>
+        </div>
+    );
+}

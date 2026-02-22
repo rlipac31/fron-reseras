@@ -53,7 +53,7 @@ export default function FieldCard2({ field }: FieldCardProps) {
         if (!fieldId) return;
 
         const loadBookings = async () => {
-            console.log(" id campo ::::::::::: ", fieldId)
+        //    console.log(" id campo ::::::::::: ", fieldId)
             setIsLoadingBookings(true);
            /*  if (dayjs(selectedDate).isBefore(dayjs(), 'day')) {//si no l afecha eleida no des mayor a la de hoy noe permite la ejecucion
                     setSelectedDate(todayStr); // Resetear a hoy
@@ -85,7 +85,7 @@ export default function FieldCard2({ field }: FieldCardProps) {
 
         loadBookings();
     }, [fieldId, selectedDate]); // <--- Se dispara al cambiar la fecha
-    console.log("dataBooking  ", bookingsData)
+   /// console.log("dataBooking  ", bookingsData)
 
     /*  logica para horarios disponibles */
 
@@ -150,19 +150,27 @@ export default function FieldCard2({ field }: FieldCardProps) {
                     <h3 className="text-lg font-bold text-brand-black group-hover:text-brand-gold transition-colors uppercase">
                         {field.name}
                     </h3>
-                    <span className={`text-[10px] font-black px-2 py-1 rounded-full uppercase ${field.state ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                    <span className={`text-[10px] font-black px-2 py-1 rounded-full uppercase ${field.state ? 'bg-brand-gold/70 text-brand-black' : 'bg-red-100 text-red-700'}`}>
                         {field.state ? 'Activa' : 'Inactiva'}
                     </span>
                 </div>
 
-                <div className="space-y-2 mb-4">
-                    <div className="flex items-center gap-2 text-xs text-gray-600">
+                <div className="space-y-2 mb-4 flex  flex-row gap-4 justify-between">
+                    <div>
+                         <div className="flex items-center gap-2 text-xs text-gray-600">
                         <MapPin size={14} className="text-brand-gold" />
                         <span className="line-clamp-1">{field.location}</span>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-gray-600">
                         <GiSoccerKick size={18} className='text-brand-gold' />
                         <span>Capacidad: {field.capacity} personas</span>
+                    </div>
+                    </div>
+                   
+                    <div className="flex items-center gap-2 text-xs text-gray-600 flex  flex-row gap-2 ">
+                        <div className='w-auto bg-brand-gold text-center text-brand-black text-center font-bold uppercase px-2 py-1 rounded-sm'>Disponible</div>
+                         <div className='w-auto bg-brand-black text-white text-center font-bold uppercase px-2 py-1 rounded-sm'>Ocupado</div>
+                          <div className='w-auto bg-gray-200 text-gray-400 text-center   font-bold uppercase px-2 py-1 rounded-sm'>Pasado</div>
                     </div>
                 </div>
 
@@ -208,11 +216,11 @@ export default function FieldCard2({ field }: FieldCardProps) {
                                 // Estilos dinámicos según el estado
                                 let buttonStyles = "";
                                 if (slot.available) {
-                                    buttonStyles = "border-green-500/30 text-[12px]  bg-green-50 text-green-700 hover:bg-green-600 hover:text-brand-white cursor-pointer";
+                                    buttonStyles = "border-brand-gold/70 text-[12px]  bg-brand-gold/40 text-brand-black/90 hover:bg-brand-gold hover:text-brand-black cursor-pointer";
                                 } else if (slot.reason === 'PASADO') {
                                     buttonStyles = "border-slate-100 bg-slate-50 text-slate-500 cursor-not-allowed  opacity-60";
                                 } else {
-                                    buttonStyles = "border-red-100 bg-red-50 text-red-400 cursor-not-allowed";
+                                    buttonStyles = "border-brand-black/60 bg-brand-black text-brand-white cursor-not-allowed";
                                 }
 
                                 return (
@@ -241,13 +249,8 @@ export default function FieldCard2({ field }: FieldCardProps) {
                     <span className="text-lg font-black text-brand-black">S/ {field.pricePerHour}</span>
                     {/* <span className="text-[10px] text-gray-500 font-medium uppercase">/ hr</span> */}
                 </div>
-              {/*   <Link href={`/${user?.slug}/dashboard/reservas/save?fieldId=${fieldId}&name=${field.name}&date=${selectedDate}`}>
-                    <button className="flex items-center gap-2 text-xs font-black text-brand-black bg-brand-gold px-4 py-2 rounded-lg hover:bg-black hover:text-brand-gold transition-all shadow-sm active:scale-95">
-                        <PlusCircle size={14} />
-                        RESERVAR
-                    </button>
-                </Link> */}
-                <p className="px-2 py-0 text-[12px] bg-brand-black/70 hover:bg-brand-black text-brand-gold mt-1 italic rounded-sm">
+
+                <p className="px-2 py-0 text-[12px] text-gray-600  mt-1 italic rounded-sm">
                 * Reservas permitidas solo para los próximos 15 días.
                 </p>
             </div>

@@ -3,6 +3,7 @@ import { PlusCircle } from 'lucide-react';
 import { StatCard } from '@/components/dashboard/StatCard';
 import { BookingTable } from '@/components/dashboard/BookingTable';
 import { useUser } from '@/context/UserContext';
+import Link from 'next/link';
 
 //export default function SoccerDashboard() {
 export default  function DashboardPage({ params }: { params: { slug: string } }) {
@@ -43,13 +44,19 @@ export default  function DashboardPage({ params }: { params: { slug: string } })
 
         {/* KPIs */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          <StatCard title="Ingresos Hoy" value="$450.00" trend="+12%" />
+         {/*  <div className='hover:bg-brand-black hover:text-white'> */}
+            <Link href={`/${user?.slug}/dashboard/pagos`}>
+                <StatCard title="Ingresos Hoy" value="$450.00" trend="+12%" />
+            </Link>
+       {/*    </div> */}
+    
+      
           <StatCard title="Reservas Activas" value="8" trend="En curso" trendType="neutral" />
           <StatCard title="Ocupación" value="85%" trend="+5% vs ayer" />
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/*   <BookingTable data={bookings} /> */}
+          {/*  <BookingTable data={bookings} /> */}
 
           {/* Estado de Canchas (Componente Inline para el ejemplo) */}
           <div className="bg-brand-white rounded-xl shadow-sm border border-brand-gray p-6">

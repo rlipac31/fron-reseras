@@ -96,7 +96,7 @@ export async function getFieldsCompleta() {
 }
 //
 
-// LSTA TODOS LOS CMAPOS COMO USPER ADMIN
+// LISTA TODOS LOS CMAPOS COMO USPER ADMIN
 export async function getFieldsSuper() {
   const cookieStore = await cookies();
   const token = cookieStore.get('token')?.value;

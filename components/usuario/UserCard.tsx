@@ -1,15 +1,20 @@
-import { Mail, Phone, CreditCard } from 'lucide-react'; // Opcional: npm install lucide-react
+import { getServerUser } from '@/app/actions/userServer';
+import { Mail, Phone, CreditCard, FilePenLine, Trash2 } from 'lucide-react'; // Opcional: npm install lucide-react
+import Link from 'next/link';
 
 interface UserCardProps {
   user: {
+    uid:string;
     name: string;
     email: string;
     dni: string;
     role: string;
+    businessId: {id:string; slug:string; name:string;description:string;};
   };
 }
 
-export default function UserCard({ user }: UserCardProps) {
+export default async function UserCard({ user }: UserCardProps) {
+ console.log("user desde user card: ", user);
   return (
     <div className="bg-brand-white border border-brand-gray rounded-xl p-4 shadow-sm flex flex-col gap-4">
       <div className="flex items-center gap-4">
@@ -42,9 +47,20 @@ export default function UserCard({ user }: UserCardProps) {
         </div>
       </div>
 
-      <div className="mt-4 pt-4 border-t border-brand-gray flex justify-end">
-        <button className="text-gray-400 text-xs font-bold uppercase hover:text-brand-black transition-colors cursor-pointer">
-          Ver Historial
+      <div className="mt-4 pt-4 border-t border-brand-gray flex justify-between">
+    <Link href={`/${user.businessId.slug}/dashboard/customers/${user.uid}`} >
+        <button className="text-gray-400 text-xs font-bold uppercase hover:text-brand-black transition-colors cursor-pointer"
+        title='Editar Datos De Cliente'
+        >
+          
+          <FilePenLine size={24} />
+          </button>
+    </Link>
+      
+        <button className="text-gray-400 text-xs font-bold uppercase hover:text-red-700 transition-colors cursor-pointer"
+         title='Eliminar cliente'
+        >
+          <Trash2 size={24} className='hover:text-red-600' />
         </button>
       </div>
     </div>

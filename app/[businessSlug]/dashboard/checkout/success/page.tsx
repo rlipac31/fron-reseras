@@ -214,7 +214,7 @@ const formatTime = (dateString: string | null) => {
         Compartir con mi equipo
       </button>
          <button
-            onClick={()=> router.push(`/${user?.slug}/dashboard/admin/campos`)}
+            onClick={()=> router.push(`/${user?.slug}/dashboard/campos`)}
             className="bg-brand-gold hover:bg-amber-500 text-brand-black px-4 py-2 rounded-xl mt-4 uppercase font-bold text-[12px]"
           >
             volver a campos

@@ -8,7 +8,7 @@ import Link from 'next/link';
 export default function BookingCard({ booking }: { booking: BookingType }) {
 
    const slug = booking.businessId?.slug;
-   console.log(" name bookind card ", booking)
+   //console.log(" name bookind card ", booking)
 
   const formatTime = (dateStr: string) => {
     return new Date(dateStr).toLocaleTimeString('es-PE', {
@@ -41,7 +41,8 @@ const stateColors = {
   };
 
   return (
-    <div className="bg-brand-white rounded-xl border border-brand-gray shadow-sm overflow-hidden flex flex-col hover:border-brand-gold transition-all">
+    <div className="w-full md:w-[15rem]  bg-brand-white rounded-xl border border-brand-gray shadow-sm overflow-hidden
+     flex flex-col hover:border-brand-gold transition-all">
 
 
  {/* Indicador de Estado Superior */}
@@ -51,7 +52,7 @@ const stateColors = {
       <div className="p-5 flex-1">
         <div className="flex justify-between items-start mb-4">
           <div>
-            <h3 className="font-bold text-brand-black text-lg leading-tight uppercase">
+            <h3 className="font-bold text-brand-black truncate text-[15px] leading-tight uppercase">
               {booking.fieldId?.name}
               
             </h3>

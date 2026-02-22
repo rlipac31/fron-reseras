@@ -2,7 +2,7 @@
 import { UserProvider } from '@/context/UserContext';
 import { cookies } from 'next/headers';
 //coponents
-import Sidebar from '@/components/sidebar';
+import Sidebar from '@/components/Sidebar';
 import MobileNavbar from "@/components/MobileNavbar";
 
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {

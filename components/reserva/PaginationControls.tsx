@@ -5,15 +5,17 @@ import { ChevronLeft, ChevronRight, ListOrdered, Hash } from 'lucide-react';
 
 interface Props {
   totalResults: number;
+  totalPages:number;
   currentPage: number;
   limit: number;
 }
 
-export function PaginationControls({ totalResults, currentPage, limit }: Props) {
+export function PaginationControls({ totalResults,  totalPages, currentPage, limit }: Props) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  
-  const totalPages = Math.ceil(totalResults / limit);
+
+
+ // console.log("total pages desde pagination ", totalPages, "total results ", totalResults, "current page ", currentPage, "limit ", limit)
 
   const updateURL = (paramsUpdate: Record<string, string>) => {
     const params = new URLSearchParams(searchParams);
@@ -37,7 +39,7 @@ export function PaginationControls({ totalResults, currentPage, limit }: Props) 
           onChange={(e) => updateURL({ limit: e.target.value, page: '1' })}
           className="bg-transparent text-xs font-bold outline-none border-b-2 border-brand-gray focus:border-brand-gold py-1"
         >
-          <option value="8">4 por página.</option>
+
           <option value="8">8 por pág.</option>
           <option value="12">12 por pág.</option>
           <option value="24">24 por pág.</option>

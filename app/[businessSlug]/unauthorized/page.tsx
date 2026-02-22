@@ -4,8 +4,10 @@ import React from 'react';
 import { ShieldAlert, ChevronLeft, Home } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useUser } from '@/context/UserContext';
 
 const UnauthorizedPage = () => {
+  const { user }= useUser();
   const router = useRouter();
 
   return (
@@ -38,7 +40,7 @@ const UnauthorizedPage = () => {
 
         {/* Botones de acción */}
         <div className="flex flex-col gap-3">
-          <Link href="/dashboard" className="w-full">
+          <Link href={`/${user?.slug}/dashboard/campos`} className="w-full">
             <button className="w-full group flex items-center justify-center gap-2 bg-brand-gold hover:bg-white text-brand-black font-black py-4 rounded-2xl transition-all duration-300 shadow-[0_0_20px_rgba(255,195,0,0.3)] active:scale-95">
               <Home size={18} className="group-hover:translate-y-[-2px] transition-transform" />
               IR AL DASHBOARD

@@ -186,7 +186,7 @@ export async function getBookingsConPagination(filter?: string, date?: string, p
  */
 
 
-// app/actions/bookings.ts
+// app/actions/bookings.ts/// reservas con filtro pára cada campo
 export async function getFieldIdReservations(fieldId: string, date?: string) {
   const params = new URLSearchParams();
   if (date) params.append('date', date);
@@ -265,6 +265,43 @@ export async function cancelBookingAction(id: string) {
     return { success: true, message: "Reserva cancelada correctamente", data };
   } catch (err) {
     console.error("Action Error:", err);
+    return { success: false, message: "Error de conexión con el servidor" };
+  }
+}
+
+//update booking
+export async function updateBookingAction(bookingId: string, updateData: any) {
+  const cookieStore = await cookies();
+  const token = cookieStore.get('token')?.value;
+
+  if (!bookingId) return { success: false, message: "ID de reserva necesario" };
+
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/${bookingId}`, {
+      method: 'PUT', // O PATCH según tu ruta
+      headers: { 
+        "Content-Type": "application/json",
+        "x-token": token || "" 
+      },
+      body: JSON.stringify(updateData)
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      // Aquí capturamos el error 403 de las "2 horas de anticipación"
+      return { 
+        success: false, 
+        message: data.message || data.mensage || "Error al actualizar" 
+      };
+    }
+
+    return { 
+      success: true, 
+      message: "Reserva actualizada correctamente", 
+      content: data.documentoActualizado 
+    };
+  } catch (err) {
     return { success: false, message: "Error de conexión con el servidor" };
   }
 }

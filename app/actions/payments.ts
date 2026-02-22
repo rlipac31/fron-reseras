@@ -1,5 +1,6 @@
 // app/actions/payments.ts
-"use server";
+"use server"
+import { revalidatePath } from 'next/cache';
 import { PaymentDataRequest } from "@/types/booking";
 import { cookies } from "next/headers";
 
@@ -7,7 +8,7 @@ export async function createPayment(formData: PaymentDataRequest) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
   if(!token){
-  //const errorData = await res.json();
+ //si no hay token
       throw new Error(  "Eno existe token en la peticion");
   }
   try {
@@ -29,5 +30,118 @@ export async function createPayment(formData: PaymentDataRequest) {
     return { success: true, content:data };
   } catch (error: any) {
     return { success: false, error: error.message };
+  }
+}
+
+// listando pagos con filtro, dia semana mes y todo con dataPicker
+export async function getPagosConFiltro(
+  filter?: string, 
+  date?: string, 
+  method?: string, // Nuevo parámetro opcional
+  page = '1', 
+  limit = '12'
+) {
+  try {
+    const cookieStore = await cookies();
+    const token = (await cookieStore).get('token')?.value;
+
+    const params = new URLSearchParams();
+    if (filter) params.append('filter', filter);
+    if (date) params.append('date', date);
+    if (method) params.append('method', method); // Enviamos el método a la API
+    params.append('page', page);
+    params.append('limit', limit);
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/con-filtro?${params.toString()}`, {
+      headers: { 
+        'x-token': `${token}`,
+        'Content-Type': 'application/json'
+      },
+      cache: 'no-store'
+    });
+
+    if (!res.ok) {
+      console.error(`Error de API: ${res.status}`);
+      return { 
+        success: false,
+        data: [], 
+        pagination: { totalResults: 0, totalPages: 0, currentPage: parseInt(page), limit: parseInt(limit) },
+        resumen: { totalGlobal: 0, porYape: 0, porEfectivo: 0, porTarjeta: 0 },
+        error: "No pudimos obtener los pagos en este momento." 
+      };
+    }
+
+    const result = await res.json();
+    
+    // Mapeamos exactamente lo que viene de tu API de Node.js
+    return { 
+      success: result.success,
+      pagination: result.pagination, // Trae totalResults, totalPages, etc.
+      resumen: result.resumenFinanciero || { 
+        totalGlobal: 0, 
+        porYape: 0, 
+        porEfectivo: 0, 
+        porTarjeta: 0 
+      },
+      data: result.data || []
+    };
+
+  } catch (err) {
+    console.error("Fallo crítico de conexión:", err);
+    return { 
+      success: false,
+      pagination: { totalResults: 0, totalPages: 0, currentPage: parseInt(page), limit: parseInt(limit) },
+      data: [], 
+      resumen: { totalGlobal: 0, porYape: 0, porEfectivo: 0, porTarjeta: 0 },
+      error: "El servicio de pagos no está disponible. Por favor, intenta más tarde." 
+    };
+  }
+}
+
+
+
+// camniar status de pendiente a completado, es decir confirmar que el pago ya se realizo, esto se hace desde la tabla de
+//  pagos, con un boton de confirmar pago, que ejecuta esta funcion, y luego revalida la pagina de pagos para mostrar
+//  el cambio de estado
+export async function confirmPaymentAction(paymentId: string) {
+    const cookieStore = await cookies();
+    const token = (await cookieStore).get('token')?.value;
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/${paymentId}/completed`, {
+      method: 'PATCH',
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-token': `${token}`
+      },
+      // Aquí deberías pasar el token si tu API lo requiere
+    });
+
+    if (!res.ok) throw new Error("Error al actualizar el pago");
+
+    revalidatePath('/dashboard/pagos'); // Ajusta a tu ruta real
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: "No se pudo confirmar el pago" };
+  }
+}
+
+export async function cancelPaymentAction(paymentId: string) {
+    const cookieStore = await cookies();
+    const token = (await cookieStore).get('token')?.value;
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/${paymentId}/cancelled`, {
+      method: 'PATCH',
+      headers: { 
+        'Content-Type': 'application/json',
+        'x-token': `${token}`
+      },
+    });
+
+    if (!res.ok) throw new Error("Error al cancelar el pago");
+
+    revalidatePath('/dashboard/pagos');
+    return { success: true };
+  } catch (error) {
+    return { success: false, message: "No se pudo cancelar el pago" };
   }
 }

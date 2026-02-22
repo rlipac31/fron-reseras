@@ -36,51 +36,47 @@ export default async function ReservasPage({
 /* 
   */
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8 animate-in fade-in duration-500 w-[98vw] md:w-[65vw] lg:w-[75vw]  xl:ml-[0px] md:ml-[-25px]  lg:ml-[-30px] ">
     
-      <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 bg-white p-6 rounded-2xl border border-brand-gray/50 shadow-sm">
-        <div className=''>
-          
-          <div className="flex items-center gap-2 mb-1">
-            <CalendarDays className="text-brand-gold" size={24} />
-            <h1 className="text-2xl font-black text-brand-black uppercase tracking-tighter">
-              Gestión de Reservas 
-            </h1>
-          </div>
-          
-          <p className="text-gray-500 text-xs font-medium">
-            Filtro actual: <span className="text-brand-black uppercase">{meta?.appliedFilter || 'Hoy'}</span> 
-            — {meta?.totalResults || 0} registros encontrados.
-          </p>
-            {/* SECCIÓN DE PAGINACIÓN */}
-            {bookings?.length > 0 && (
-                <PaginationControls 
-                totalResults={meta.totalResults}
-                currentPage={meta.page}
-                limit={meta.limit}
-                />
-            )}
-        </div>
-        
-       <div className='h-full flex flex-col items-end-safe justify-between gap-4'>
-        
-              {  user?.role && user?.role =='ADMIN' &&(
+      <header className="flex flex-col justify-between items-start  gap-2 bg-white p-6 rounded-2xl border border-brand-gray/50 shadow-sm">
+            <div className='flex flex-col md:flex-row  gap-2 justify-between items-center p-4 rounded-lg md:w-full '>
+              
+              <div className="flex items-center gap-2 mb-1">
+                <CalendarDays className="text-brand-gold" size={24} />
+                <h1 className="text-[16px] md:text-2xl font-black text-brand-black uppercase tracking-tighter">
+                  Gestión de Reservas 
+                </h1>
+              </div>
+              
+              <p className="text-gray-500 text-xs font-medium">
+                Filtro actual: <span className="text-brand-black uppercase">{meta?.appliedFilter || 'Hoy'}</span> 
+                — {meta?.totalResults || 0} registros encontrados.
+              </p>
+
+               {  user?.role && user?.role =='ADMIN' &&(
                 <Link href={`/${user?.slug}/dashboard/reservas/admin`}>
-                    <button className="mt-[-40px] mb-4  flex items-center justify-center gap-2 bg-brand-gold hover:bg-brand-gold/90
-                     text-brand-black font-bold py-2.5 px-6 rounded-lg transition-all shadow-sm active:scale-95">
+                    <button className="flex items-center justify-center gap-2 bg-brand-gold hover:bg-brand-gold/90
+                     text-brand-black font-bold  px-2 py-1 text-xs md:text-[16px] md:py-2.5 md:px-6 rounded-lg transition-all shadow-sm active:scale-95">
                       <FolderDot size={20} />
                       Administar Reservas
                     </button>
                   </Link> 
             )}
+              
+            </div>
         
+       <div className='h-full flex fle-col md:flex-row md:w-full md:items-center items-end-safe justify-between gap-2'>
+        
+             
+                <FilterTabs />
          
+    
+               <DatePicker />
+        
             
-             <div className="flex flex-wrap items-end gap-4 w-full lg:w-auto justify-end">
-            <DatePicker />
-            <div className="h-10 w-[1px] bg-brand-gray/50 hidden md:block" />
-            <FilterTabs />
-          </div>
+
+          
+        
           </div>     
        
 
@@ -98,7 +94,8 @@ export default async function ReservasPage({
     )}
 
       {/* Grid de Reservas */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 pb-6">
+  {/*     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 border-4"> */}
+<div className="flex flex-row flex-wrap gap-2 lg:gap-4  items-center md:items-center sm:justify-between ">  
         {!error && bookings.length > 0 ? (
           bookings.map((booking: any) => (
             <BookingCard key={booking._id} booking={booking} />
@@ -114,7 +111,15 @@ export default async function ReservasPage({
         )}
       </div>
 
-    
+          {/* SECCIÓN DE PAGINACIÓN */}
+            {bookings?.length > 0 && (
+                <PaginationControls 
+                totalResults={meta.totalResults}
+                totalPages={meta.totalPages}
+                currentPage={meta.page}
+                limit={meta.limit}
+                />
+            )}
     </div>
   );
 }

@@ -44,12 +44,14 @@ body {
 
 
 @theme {
+
+
   --color-brand-black: #000814;
   --color-brand-gold: #FFC300;
   --color-brand-gray: #e5e5e5;
   --color-brand-white: #ffffff;
   --color-success: #FFC300;
-  --color-danger: #e91313f1;
+  --color-danger: #e91313f1; 
 
   /* --- NUEVAS ANIMACIONES AQUÍ --- */
   @keyframes loading-slide {

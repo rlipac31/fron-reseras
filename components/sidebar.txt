@@ -6,6 +6,7 @@ import { usePathname } from 'next/navigation'; // Importamos el hook para detect
 import Link from 'next/link';
 import { logout } from "../app/actions/auth";
 
+
 // Icons
 import {
   LogOut,
@@ -38,16 +39,7 @@ interface NavItemProps {
 export default function Sidebar({slug}: {slug:string}) {
   const pathname = usePathname(); // Obtenemos la ruta actual (ej: "/dashboard/reservas")
   const { user, setUser }  = useUser();
- // const token = token;
-  //const slug = user?.slug;
- // console.log("user desde sidebar:: ", user?.slug)
 
- /*  const handleLogout = async () => {
-    if (confirm("¿Estás seguro de que quieres cerrar sesión?")) {
-      await logout();
-      
-    }
-  }; */
 
   // En tu botón de Logout en el frontend
 const handleLogoutClick = async () => {
@@ -60,14 +52,7 @@ const handleLogoutClick = async () => {
   const isActive = (path: string) => pathname === path;
 
   return (
-/*     <aside className="w-64 bg-brand-black text-brand-white hidden md:flex flex-col p-6 h-screen sticky top-0">
-      <div className="flex items-center gap-2 mb-10">
-        <div className="bg-brand-gold p-2 rounded-lg">
-          <LayoutDashboard size={20} className="text-brand-black" />
-        </div>
-        <span className="text-xl font-bold italic">ARENA {business.toUpperCase()}</span>
-      </div>
- */
+
 
 
    <aside className="w-64 bg-brand-black text-brand-white hidden md:flex flex-col p-6 h-screen sticky top-0 border-r border-white/5">

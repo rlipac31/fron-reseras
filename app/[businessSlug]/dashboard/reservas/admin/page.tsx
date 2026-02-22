@@ -6,6 +6,8 @@ import { getBookingsConFiltro } from "@/app/actions/bookings";
 
 import {BookingType} from '@/types/booking'
 import { BookingTable } from "@/components/dashboard/BookingTable";
+import { getServerUser } from "@/app/actions/userServer";
+import { redirect } from "next/navigation";
 
 /* interface Booking {
   _id: string;
@@ -33,8 +35,17 @@ export default async function AdminReservationsPage({
 }: {
   searchParams: Promise<{ [key: string]: string | undefined }>;
 }) {
- /*  const params = await searchParams;
-  const { data: bookings, meta } = await getBookingsConFiltro(params); */
+ 
+ const user = await getServerUser();
+// 2. Validación de seguridad
+  if (user?.role !== 'ADMIN' && user?.role !== 'USER') {
+    
+    // REDIRECCIÓN DE SERVIDOR
+    // Nota: redirect() lanza un error interno de Next.js que detiene 
+    // la ejecución del componente y manda al usuario a la nueva ruta.
+    redirect(`/${user?.slug}/unauthorized`);
+  }
+
 
   // 1. Esperamos a los parámetros de la URL
   const { filter, date, page } = await searchParams;
@@ -126,6 +137,7 @@ export default async function AdminReservationsPage({
        {/*  <PaginationControls meta={meta} /> */}
          <PaginationControls 
                 totalResults={meta.totalResults}
+                totalPages={meta.totalPages}
                 currentPage={meta.page}
                 limit={meta.limit}
                 />

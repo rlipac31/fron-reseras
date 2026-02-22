@@ -39,7 +39,7 @@ export default function ReservationForm({ initialData }: Props) {
     const { user } = useUser();
     const router = useRouter()
 
-    console.log("desde formulario booking: ", user)
+  //  console.log("desde formulario booking: ", user)
 
     // cliente
 
@@ -71,7 +71,7 @@ export default function ReservationForm({ initialData }: Props) {
 
     });
 
-
+//console.log("data pago de reserva campo ",formData)
 
     // console.log(" campo desde formulario ", campo)
     // console.log(" data formulario ", formData)
@@ -80,7 +80,10 @@ export default function ReservationForm({ initialData }: Props) {
     useEffect(() => {
         const fetchCustomers = async () => {
             try {
-                const res = await fetch(`/api-backend/users/customers`, {
+                const url =`/api-backend/users/customers`;
+                const urlLocal=`${process.env.NEXT_PUBLIC_API_URL}/users/customers`;//local
+                //.log("urlLocal desde booking form ", urlLocal, "url ", url)
+                const res = await fetch(urlLocal, {
                     headers: { "Content-Type": "application/json" },
                     // ESTO ES VITAL: Permite que el navegador reciba y guarde la cookie HttpOnly
                     credentials: "include",
@@ -96,7 +99,7 @@ export default function ReservationForm({ initialData }: Props) {
         fetchCustomers();
     }, [user?.role]);
 
-    //    console.log(" lista declientes desde formulario ", customers)
+      //  console.log(" lista declientes desde formulario ", customers)
 
     const handleSuccess = () => {
         setIsSuccess(true);
@@ -126,8 +129,10 @@ export default function ReservationForm({ initialData }: Props) {
         e.preventDefault();
         setLoading(true);
         try {
-            console.log(" datafromat desde handlesutmit ", formData);
-            const response = await fetch(`/api-backend/bookings`, { // Tu endpoint de Node.js
+          //  console.log(" datafromat desde handlesutmit ", formData);
+            const url =`/api-backend/bookings`;
+            const urlLocal=`${process.env.NEXT_PUBLIC_API_URL}/bookings`;//local
+            const response = await fetch(`${urlLocal}`, { // Tu endpoint de Node.js
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
@@ -159,13 +164,12 @@ export default function ReservationForm({ initialData }: Props) {
                 const queryString = new URLSearchParams(queryParams).toString();
                 const finalUrl = `/${user?.slug}/dashboard/checkout/success?${queryString}`;
 
-                console.log("Redirigiendo a:", finalUrl);
+              //  console.log("Redirigiendo a:", finalUrl);
 
                     router.push(finalUrl);
                 
                 handleSuccess()
-               /*  setTimeout(() => {
-                }, 2000); */
+              
 
             } else {
                 // AGREGAR ESTO:
