@@ -13,7 +13,7 @@ import { redirect } from 'next/navigation';
 const AdminCampos = () => {
   const { user } = useUser();
   console.log("user desde campos admin ", user)
-  
+
   // 1. Tipado de estados
   const [campos, setCampos] = useState<SoccerField[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -35,9 +35,9 @@ const AdminCampos = () => {
       try {
         const { success, content } = await getFieldsCompleta();
         if (success) {
-            setCampos(content);
+          setCampos(content);
         } else {
-            setError("No se pudieron cargar los campos");
+          setError("No se pudieron cargar los campos");
         }
       } catch (err) {
         console.error("Error cargando campos:", err);
@@ -75,8 +75,8 @@ const AdminCampos = () => {
     try {
       const res = await updateStateField(updateState._id);
       if (res?.success) {
-        setCampos((prevCampos) => 
-          prevCampos.map((c) => 
+        setCampos((prevCampos) =>
+          prevCampos.map((c) =>
             c._id === updateState._id ? { ...c, state: !c.state } : c
           )
         );
@@ -153,7 +153,7 @@ const AdminCampos = () => {
             ) : (
 
               <tbody className="divide-y divide-brand-gray">
-                   {/* Si _id es objeto usa campo._id.$oid // si tiene que parsear a un id.toString() */}
+                {/* Si _id es objeto usa campo._id.$oid // si tiene que parsear a un id.toString() */}
                 {campos && campos?.map((campo) => (
                   <tr key={campo._id} className="hover:bg-gray-50 transition-colors group">
                     <td className="px-6 py-4">
@@ -163,7 +163,7 @@ const AdminCampos = () => {
                     <td className="px-6 py-4 text-sm text-gray-600">{campo.location}</td>
                     <td className="px-6 py-4 text-sm text-gray-600">{campo.description}</td>
                     <td className="px-6 py-4 text-center">
-                      <span className="font-semibold text-brand-black">S/ {campo.pricePerHour}</span>
+                      <span className="font-semibold text-brand-black">{user?.currency?.symbol || 'S/'} {campo.pricePerHour}</span>
                     </td>
                     <td className="px-6 py-4 text-center">
                       <span

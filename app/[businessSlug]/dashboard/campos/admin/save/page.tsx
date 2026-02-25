@@ -206,7 +206,7 @@ if (user?.role !== 'ADMIN') return null;
                 Precio / Hora
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 font-bold text-xs">{user?.currency?.symbol || "$"}</span>
                 <input
                   id="pricePerHour"
                   type="number"

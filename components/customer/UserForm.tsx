@@ -1,13 +1,13 @@
 "use client";
 import { useState } from 'react';
-import { 
-    CheckCircle2, 
-    Loader2, 
-    User, 
-    Mail, 
-    Lock, 
-    Fingerprint, 
-    Phone, 
+import {
+    CheckCircle2,
+    Loader2,
+    User,
+    Mail,
+    Lock,
+    Fingerprint,
+    Phone,
     UserPlus,
     X,
     AlertCircle
@@ -44,10 +44,10 @@ export default function UserForm({ businessId }: { businessId: string }) {
             return;
         }
 
-        // 2. Solo números para Teléfono (máx 9 para formato Perú)
+        // 2. Solo números para Teléfono (máx 10)
         if (name === 'phone') {
             const onlyNums = value.replace(/[^0-9]/g, '');
-            if (onlyNums.length <= 9) {
+            if (onlyNums.length <= 10) {
                 setFormData(prev => ({ ...prev, [name]: onlyNums }));
             }
             return;
@@ -74,7 +74,7 @@ export default function UserForm({ businessId }: { businessId: string }) {
         }
 
         if (formData.phone.length < 9) {
-            setErrorMsg("El número de WhatsApp debe tener 9 dígitos");
+            setErrorMsg("El número de WhatsApp debe tener entre 9 y 10 dígitos");
             return;
         }
 
@@ -128,7 +128,7 @@ export default function UserForm({ businessId }: { businessId: string }) {
                 </div>
 
                 <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
-                    
+
                     {/* MENSAJE DE ERROR */}
                     {errorMsg && (
                         <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-xl flex items-center gap-3 animate-shake">
@@ -141,7 +141,7 @@ export default function UserForm({ businessId }: { businessId: string }) {
                         {/* NOMBRE */}
                         <div className="md:col-span-2 space-y-1.5">
                             <label className="text-[11px] font-black text-brand-black uppercase ml-1 flex items-center gap-1.5">
-                                <User size={14} className="text-brand-gold"/> Nombre y Apellidos <span className="text-red-500">*</span>
+                                <User size={14} className="text-brand-gold" /> Nombre y Apellidos <span className="text-red-500">*</span>
                             </label>
                             <input
                                 required
@@ -157,7 +157,7 @@ export default function UserForm({ businessId }: { businessId: string }) {
                         {/* EMAIL */}
                         <div className="space-y-1.5">
                             <label className="text-[11px] font-black text-brand-black uppercase ml-1 flex items-center gap-1.5">
-                                <Mail size={14} className="text-brand-gold"/> Email <span className="text-red-500">*</span>
+                                <Mail size={14} className="text-brand-gold" /> Email <span className="text-red-500">*</span>
                             </label>
                             <input
                                 required
@@ -173,7 +173,7 @@ export default function UserForm({ businessId }: { businessId: string }) {
                         {/* PASSWORD */}
                         <div className="space-y-1.5">
                             <label className="text-[11px] font-black text-brand-black uppercase ml-1 flex items-center gap-1.5">
-                                <Lock size={14} className="text-brand-gold"/> Contraseña <span className="text-red-500">*</span>
+                                <Lock size={14} className="text-brand-gold" /> Contraseña <span className="text-red-500">*</span>
                             </label>
                             <input
                                 required
@@ -189,7 +189,7 @@ export default function UserForm({ businessId }: { businessId: string }) {
                         {/* DNI */}
                         <div className="space-y-1.5">
                             <label className="text-[11px] font-black text-brand-black uppercase ml-1 flex items-center gap-1.5">
-                                <Fingerprint size={14} className="text-brand-gold"/> DNI <span className="text-red-500">*</span>
+                                <Fingerprint size={14} className="text-brand-gold" /> DNI <span className="text-red-500">*</span>
                             </label>
                             <input
                                 required
@@ -205,7 +205,7 @@ export default function UserForm({ businessId }: { businessId: string }) {
                         {/* WHATSAPP */}
                         <div className="space-y-1.5">
                             <label className="text-[11px] font-black text-brand-black uppercase ml-1 flex items-center gap-1.5">
-                                <Phone size={14} className="text-brand-gold"/> WhatsApp <span className="text-red-500">*</span>
+                                <Phone size={14} className="text-brand-gold" /> WhatsApp <span className="text-red-500">*</span>
                             </label>
                             <input
                                 required
@@ -213,8 +213,10 @@ export default function UserForm({ businessId }: { businessId: string }) {
                                 name="phone"
                                 value={formData.phone}
                                 onChange={handleChange}
+                                minLength={7}
+                                maxLength={10}
                                 className="w-full px-4 py-3 bg-gray-50 border border-brand-gray rounded-xl text-sm focus:border-brand-black focus:ring-4 focus:ring-brand-gold/20 outline-none transition-all font-semibold"
-                                placeholder='999999999'
+                                placeholder='9999999990'
                             />
                         </div>
                     </div>

@@ -1,223 +1,228 @@
 "use client";
 
 import { useSearchParams, useRouter } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, Suspense } from 'react';
 import { useUser } from '@/context/UserContext';
-
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from "zod";
-//coockies
-import Cookies from 'js-cookie';
-import { Suspense } from 'react';
-
-//imagen
-import fondo from '../../../public/assets/soccer-488700_1920.jpg';
 import Image from 'next/image';
-import {ErrorAlert} from '@/components/Alert'
+import { ErrorAlert } from '@/components/Alert';
+import fondo from '../../../public/assets/soccer-488700_1920.jpg';
 
-
-
-
-// 1. Definimos el esquema de validación
+// Esquema de validación dinámico
 const loginSchema = z.object({
   email: z.string().email("Correo inválido").min(1, "El correo es requerido"),
   password: z.string().min(6, "La contraseña debe tener al menos 6 caracteres"),
+  businessId: z.string().optional(), // Opcional porque se llena después del check
 });
 
-// Inferimos el tipo de datos del esquema
 type LoginFormValues = z.infer<typeof loginSchema>;
 
-
-/// 
- function  LoginForm () {
-   const searchParams = useSearchParams();
+function LoginForm() {
+  const searchParams = useSearchParams();
   const router = useRouter();
   const { setUser } = useUser();
-  const [userLogueado, setUserLogueado ] = useState<any>(null);
-   const [loginError, setLoginError ] = useState(false);
-     const [errorMgs, setErrorMsg ] = useState('');
+  // skeleton
+  const [isLoadingCheck, setIsLoadingCheck] = useState(false);
+  // ESTADOS PARA LA LÓGICA MULTI-NEGOCIO
+  const [step, setStep] = useState(1); // 1: Email, 2: Negocio/Password
+  const [businesses, setBusinesses] = useState<any[]>([]);
+  const [loginError, setLoginError] = useState(false);
+  const [errorMgs, setErrorMsg] = useState('');
 
-  // 2. Configuramos el hook del formulario
-  const {
-    register,
-    handleSubmit,
-    formState: { errors, isSubmitting },
-  } = useForm<LoginFormValues>({
+  const { register, handleSubmit, watch, setValue, formState: { errors, isSubmitting } } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
   });
 
-    // Capturamos a dónde quería ir el usuario originalmente
-  const destination = searchParams.get('from') || '/'; 
+  const emailValue = watch("email");
+  const businessIdValue = watch("businessId");
 
-   // 3. Función para enviar a la API de Node.js
-  const onSubmit = async (data: LoginFormValues) => {
+  const urlLocal = `${process.env.NEXT_PUBLIC_API_URL}`;
 
-   // console.log("intento de loguearse....")
+  // FUNCIÓN 1: Verificar Email y listar negocios
+  const handleCheckEmail = async () => {
+    if (!emailValue || errors.email) return;
+    
 
-  try {
-        const url =`/api-backend/auth`;
-        const urlLocal=`${process.env.NEXT_PUBLIC_API_URL}/auth`;//local
-        console.log("url local ", urlLocal)
-       const res = await fetch(`${urlLocal}`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(data),
-          // ESTO ES VITAL: Permite que el navegador reciba y guarde la cookie HttpOnly
-          credentials: "include", 
-        }); 
+    try {
+      const res = await fetch(`${urlLocal}/auth/check-email`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: emailValue }),
+      });
 
-        const dataLogin = await res.json();
-      
-       console.log("data login ", dataLogin?.message)
-         if (dataLogin.success) {
-            setUser(dataLogin.user);
-          //  console.log("user desde login", dataLogin.user)
-            // Elige un solo camino para el path
-            const finalPath = destination !== '/' 
-                ? destination 
-                : `/${dataLogin.user?.slug}/dashboard`;
-            
-            router.push(finalPath);
+      const data = await res.json();
+
+      if (data.success) {
+        if (data.hasMultiple) {
+          setBusinesses(data.businesses);
+          setStep(2);
+        } else {
+          // Si solo hay uno, lo asignamos y pasamos al password
+          setValue("businessId", data.businessId);
+          setStep(2);
           
-        } else{
-          setErrorMsg(dataLogin.message)
-          setLoginError(true)
         }
-  
-      
-
+        setLoginError(false);
+      } else {
+        setErrorMsg(data.message || "Usuario no encontrado");
+        setLoginError(true);
+      }
     } catch (error) {
-    setErrorMsg(`Hubo un error typo:  ${error}`)
-    setLoginError(true)
-  }
-};    
- 
+      setErrorMsg("Error al conectar con el servidor");
+      setLoginError(true);
+    }
+  };
 
+  // FUNCIÓN 2: Login Final
+  const onSubmit = async (data: LoginFormValues) => {
+    try {
+      const res = await fetch(`${urlLocal}/auth`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+        credentials: "include",
+      });
+
+      const dataLogin = await res.json();
+
+      if (dataLogin.success) {
+        setUser(dataLogin.user);
+        const destination = searchParams.get('from') || `/${dataLogin.user?.slug}/dashboard`;
+        router.push(destination);
+      } else {
+        setErrorMsg(dataLogin.message);
+        setLoginError(true);
+      }
+    } catch (error) {
+      setErrorMsg("Error de conexión");
+      setLoginError(true);
+    }
+  };
 
   return (
     <main className="relative min-h-screen w-full flex items-center justify-center p-4">
-      {/* Fondo con imagen y overlay */}
-    <div className="absolute inset-0 z-0"
-      style={{
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-    >
-        <Image
-          src={fondo} // Ruta relativa a la carpeta public
-          alt="Background"
-          fill
-          className="object-cover"
-          priority // Carga la imagen con prioridad por ser el fondo
-        />
-        {/* Capa de superposición (Overlay) para opacidad */}
+      <div className="absolute inset-0 z-0">
+        <Image src={fondo} alt="Background" fill className="object-cover" priority />
         <div className="absolute inset-0 bg-brand-black/70 backdrop-blur-sm"></div>
       </div>
 
-      {/* Tarjeta de Login */}
-      <div className="relative z-10 w-full max-w-md bg-brand-white rounded-2xl shadow-2xl overflow-hidden">
-        <div className="p-8">
-          <div className="text-center mb-10">
-            <h1 className="text-3xl font-bold text-brand-black">Bienvenido</h1>
-            <p className="text-gray-500 mt-2">Ingresa a tu cuenta para continuar</p>
-            
-            { loginError &&  (
-              <ErrorAlert 
-              message={errorMgs}
-              onClose={()=> setLoginError(false)}
-               
+      <div className="relative z-10 w-full max-w-md bg-brand-white rounded-2xl shadow-2xl overflow-hidden p-8">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-brand-black">Bienvenido</h1>
+          <p className="text-gray-500 mt-2">
+            {step === 1 ? "Ingresa tu correo para empezar" : "Selecciona tu sede y contraseña"}
+          </p>
+          {loginError && <ErrorAlert message={errorMgs} onClose={() => setLoginError(false)} />}
+        </div>
 
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+          {/* CAMPO EMAIL: Siempre visible pero deshabilitado en paso 2 */}
+          <div>
+            <label className="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Correo Electrónico</label>
+            <input
+              {...register("email")}
+              type="email"
+              disabled={step === 2}
+              className={`w-full px-4 py-3 rounded-xl border transition-all outline-none ${
+                errors.email ? "border-red-500 ring-1 ring-red-500" : "border-brand-gray focus:ring-2 focus:ring-brand-gold"
+              } ${step === 2 ? "bg-gray-100 text-gray-500" : "bg-white text-brand-black"}`}
+              placeholder="ejemplo@correo.com"
             />
-            ) 
-             }
           </div>
 
-          <form onSubmit={(e) => {
-              e.preventDefault(); // EVITA QUE LA PÁGINA SE RECARGUE
-              handleSubmit(onSubmit)(e);
-            }}
-          
-          className="space-y-6">
-            <div>
-              <label className="block text-sm font-medium text-brand-black mb-1">
-                
-              </label>
-              <input 
-               {...register("email")}
-                type="email" 
-                className={`w-full px-4 py-3 rounded-lg border border-brand-gray focus:ring-2 focus:ring-brand-gold 
-                focus:border-transparent outline-none transition-all
-                ${
-                errors.email ? "border-red-500 ring-1 ring-red-500" : "border-brand-gray focus:ring-2 focus:ring-brand-gold"
-              }`}
-                placeholder="ejemplo@correo.com"
-              />
-                          {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email.message}</p>}
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-brand-black mb-1">
-                Contraseña
-              </label>
-              <input 
-               {...register("password")}
-                type="password" 
-                className={`w-full px-4 py-3 rounded-lg border border-brand-gray focus:ring-2 focus:ring-brand-gold 
-                :border-transparent outline-none transition-all
-                 ${
-                errors.password ? "border-red-500 ring-1 ring-red-500" : "border-brand-gray focus:ring-2 focus:ring-brand-gold"
-              }`}
-            />
-            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
-            
+          {/* PASO 2: SELECT DE NEGOCIO Y PASSWORD */}
+          {step === 2 && (
+            <div className="animate-in fade-in slide-in-from-top-4 duration-500 space-y-5">
               
+              {/* SELECT DE NEGOCIOS (Solo si hay varios) */}
+              {businesses.length > 1 && (
+                <div>
+                  <label className="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Selecciona tu Complejo</label>
+                  <select
+                    {...register("businessId")}
+                    className="w-full px-4 py-3 rounded-xl border border-brand-gray bg-white text-brand-black font-bold focus:ring-2 focus:ring-brand-gold outline-none"
+                  >
+                    <option value="">-- Elige una Arena --</option>
+                    {businesses.map((b) => (
+                      <option key={b.id} value={b.id}>{b.slug}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* CONTRASEÑA */}
+              <div>
+                <label className="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Contraseña</label>
+                <input
+                  {...register("password")}
+                  type="password"
+                  autoFocus
+                  className="w-full px-4 py-3 rounded-xl border border-brand-gray focus:ring-2 focus:ring-brand-gold outline-none text-brand-black"
+                  placeholder="••••••••"
+                />
+                {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password.message}</p>}
+              </div>
             </div>
-{/* 
-            <div className="flex items-center justify-end">
-              <a href="#" className="text-sm text-brand-gold hover:underline font-medium">
-                ¿Olvidaste tu contraseña?
-              </a>
-            </div> */}
+          )}
 
-            <button 
-              type="submit"
-              disabled={isSubmitting}                                        
-              className="w-full bg-brand-gold hover:bg-[#e08e00] text-brand-black font-bold py-3 
-              rounded-lg transition-colors shadow-lg active:scale-[0.98]"
+          {/* BOTONES DINÁMICOS */}
+          {step === 1 ? (
+            <button
+              type="button"
+              onClick={handleCheckEmail}
+              className="w-full bg-brand-gold hover:bg-yellow-500 text-brand-black font-black py-4 rounded-xl uppercase tracking-tighter shadow-lg transition-all active:scale-95"
             >
-               {isSubmitting ? "Cargando..." : "Ingresar"}
-             {/*  Iniciar Sesión */}
+              Siguiente
             </button>
-          </form>
+          ) : (
+            <div className="flex gap-2">
+               <button
+                type="button"
+                onClick={() => setStep(1)}
+                className="w-1/3 bg-brand-gray text-brand-black font-bold py-4 rounded-xl uppercase text-xs"
+              >
+                Atrás
+              </button>
+              <button
+                type="submit"
+                disabled={isSubmitting || (businesses.length > 1 && !businessIdValue)}
+                className="w-2/3 bg-brand-black text-brand-gold font-black py-4 rounded-xl uppercase tracking-tighter shadow-lg disabled:opacity-50 transition-all active:scale-95"
+              >
+                {isSubmitting ? "Entrando..." : "Iniciar Sesión"}
+              </button>
+            </div>
+          )}
+        </form>
 
-          <p className="text-center mt-8 text-sm text-gray-600">
-            ¿No tienes cuenta?{' '}
-            <a href="#" className="text-brand-gold font-bold hover:underline">
-              Regístrate
-            </a>
-          </p>
-        </div>
+        <p className="text-center mt-8 text-sm text-gray-400 font-bold uppercase tracking-widest">
+          ¿No tienes cuenta? <span className="text-brand-gold cursor-pointer hover:underline">Regístrate</span>
+        </p>
       </div>
     </main>
   );
 }
 
+const SkeletonLoader = () => (
+  <div className="animate-pulse space-y-5">
+    {/* Skeleton para el Label */}
+    <div className="h-3 w-32 bg-gray-200 rounded-full ml-1"></div>
+    {/* Skeleton para el Select */}
+    <div className="h-12 w-full bg-gray-200 rounded-xl"></div>
+    
+    {/* Skeleton para el Label Password */}
+    <div className="h-3 w-24 bg-gray-200 rounded-full ml-1 mt-6"></div>
+    {/* Skeleton para el Input Password */}
+    <div className="h-12 w-full bg-gray-200 rounded-xl"></div>
+  </div>
+);
 
-// --- EXPORT POR DEFECTO CON SUSPENSE ---
+
 export default function LoginPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-brand-black flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-brand-gold"></div>
-      </div>
-    }>
+    <Suspense fallback={<div className="min-h-screen bg-brand-black flex items-center justify-center text-brand-gold">Cargando...</div>}>
       <LoginForm />
     </Suspense>
   );
 }
-
-/////
-
-

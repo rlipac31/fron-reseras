@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import confetti from "canvas-confetti";
-import { Percent, UserCheck, UserPlus, Lock, CheckCircle2, ArrowRight, Share2 } from 'lucide-react'
+import { Percent, UserCheck, UserPlus, Lock, CheckCircle2, ArrowRight, Share2, Phone } from 'lucide-react'
 
 import { useRouter, useSearchParams } from "next/navigation";
 //import { BookingInput, BookingButton } from "./BookingInput";
@@ -39,7 +39,7 @@ export default function ReservationForm({ initialData }: Props) {
     const { user } = useUser();
     const router = useRouter()
 
-  //  console.log("desde formulario booking: ", user)
+    //  console.log("desde formulario booking: ", user)
 
     // cliente
 
@@ -60,30 +60,31 @@ export default function ReservationForm({ initialData }: Props) {
         //  startTime:`${preselectedDate}T${preselectedTime}`,
         startTime: `${fullStartTime}`,
         durationInMinutes: 60,
-        paymentMethod: "YAPE",
+        paymentMethod: "", // Forzamos a que el usuario elija
         amount: initialData.campo?.pricePerHour,
         descuento: 0,
         total: 0,
         idUser: user?.uid,
         idCustomer: user?.uid,
         dniCustomer: '',
-        nameCustomer: user?.nameUser 
+        nameCustomer: user?.role === 'CUSTOMER' ? (user?.nameUser || '') : 'CONSUMIDOR FINAL',
+        phonePayment: ''
 
     });
 
-//console.log("data pago de reserva campo ",formData)
+    //console.log("data pago de reserva campo ",formData)
 
     // console.log(" campo desde formulario ", campo)
-    // console.log(" data formulario ", formData)
+    console.log(" data formulario ", formData)
 
     // 1. Cargamos los clientes UNA sola vez al montar el componente
     useEffect(() => {
         const fetchCustomers = async () => {
             try {
-                const url =`/api-backend/users/customers`;
-                const urlLocal=`${process.env.NEXT_PUBLIC_API_URL}/users/customers`;//local
+                const url = `/api-backend/users/customers`;
+                // const urlLocal = `${process.env.NEXT_PUBLIC_API_URL}/users/customers`;//local
                 //.log("urlLocal desde booking form ", urlLocal, "url ", url)
-                const res = await fetch(urlLocal, {
+                const res = await fetch(url, {
                     headers: { "Content-Type": "application/json" },
                     // ESTO ES VITAL: Permite que el navegador reciba y guarde la cookie HttpOnly
                     credentials: "include",
@@ -99,7 +100,7 @@ export default function ReservationForm({ initialData }: Props) {
         fetchCustomers();
     }, [user?.role]);
 
-      //  console.log(" lista declientes desde formulario ", customers)
+    //  console.log(" lista declientes desde formulario ", customers)
 
     const handleSuccess = () => {
         setIsSuccess(true);
@@ -127,11 +128,25 @@ export default function ReservationForm({ initialData }: Props) {
 
     const onSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        // VALIDACIÓN PREVIA
+        if (!formData.paymentMethod) {
+            setError("Por favor, seleccione un método de pago para continuar.");
+            setErrorPayment(true);
+            return;
+        }
+
+        if (formData.paymentMethod === 'PAGO_MOVIL' && (!formData.phonePayment || formData.phonePayment.length < 8)) {
+            setError("Para 'Pago Móvil' es obligatorio ingresar el número de celular del depósito de almenos 8 digitos o los que se necesite en su pais).");
+            setErrorPayment(true);
+            return;
+        }
+
         setLoading(true);
         try {
-          //  console.log(" datafromat desde handlesutmit ", formData);
-            const url =`/api-backend/bookings`;
-            const urlLocal=`${process.env.NEXT_PUBLIC_API_URL}/bookings`;//local
+            //  console.log(" datafromat desde handlesutmit ", formData);
+            const url = `/api-backend/bookings`;
+            const urlLocal = `${process.env.NEXT_PUBLIC_API_URL}/bookings`;//local
             const response = await fetch(`${urlLocal}`, { // Tu endpoint de Node.js
                 method: "POST",
                 headers: {
@@ -153,10 +168,13 @@ export default function ReservationForm({ initialData }: Props) {
                     precio: String(data.payment?.amount || 0),
                     descuento: String(data.payment?.descuento || 0),
                     total: String(data.payment?.total || 0),
+                    fechaJuego: String(data.booking?.startTime || ''), // Corregido: startTime
                     inicio: String(data.booking?.startTimeLocal || ''), // Corregido: startTime
-                    fin: String(data.booking?.endTime || ''),
+                    fin: String(data.booking?.endTimeLocal || ''),
                     duracion: String(data.booking?.durationInMinutes || 0),
                     metodoPago: String(data.payment?.paymentMethod || ''),
+                    phonePayment: String(data.payment?.phonePayment || ''),
+                    estado: String(data.payment?.status || ''),
                     fechaPago: String(data.payment?.createdAt || new Date().toISOString()),
                     ref: String(data.payment?._id || '')
                 };
@@ -164,12 +182,12 @@ export default function ReservationForm({ initialData }: Props) {
                 const queryString = new URLSearchParams(queryParams).toString();
                 const finalUrl = `/${user?.slug}/dashboard/checkout/success?${queryString}`;
 
-              //  console.log("Redirigiendo a:", finalUrl);
+                //  console.log("Redirigiendo a:", finalUrl);
 
-                    router.push(finalUrl);
-                
+                router.push(finalUrl);
+
                 handleSuccess()
-              
+
 
             } else {
                 // AGREGAR ESTO:
@@ -191,7 +209,7 @@ export default function ReservationForm({ initialData }: Props) {
     // UseMemo para evitar recalcular en cada micro-render
     const finalPrice = useMemo(() => {
         const total = initialData.campo?.pricePerHour || formData?.amount || 0;
-        return total * (1 - ((formData?. descuento || 0)/ 100));
+        return total * (1 - ((formData?.descuento || 0) / 100));
     }, [initialData.campo?.pricePerHour, formData?.amount, formData?.descuento]);
 
     //const finalPrice = (campo?.pricePerHour || 0) * (1 - (Number(formData?.descuento || 0) / 100));
@@ -202,13 +220,12 @@ export default function ReservationForm({ initialData }: Props) {
     // Función que se ejecuta cuando el buscador encuentra un cliente
     // 2. Manejador de selección
     const handleCustomerSelect = (customer: any) => {
-
-        setFormData({
-            ...formData,
+        setFormData(prev => ({
+            ...prev,
             nameCustomer: customer.name,
             dniCustomer: customer.dni,
-            idCustomer: customer.uid // O el campo que use tu BD
-        });
+            idCustomer: customer.uid
+        }));
     };
 
     // para bluqer  el input hora cuanod lleguen los datos desde campos
@@ -235,7 +252,7 @@ export default function ReservationForm({ initialData }: Props) {
                                 type="datetime-local"
                                 min={today}
                                 value={formData.startTime}
-                                onChange={(e) => !isPreselected && setFormData({ ...formData, startTime: e.target.value })}
+                                onChange={(e) => !isPreselected && setFormData(prev => ({ ...prev, startTime: e.target.value }))}
                                 // Usamos disabled si ya viene pre-seleccionado para bloquear el picker
                                 disabled={isPreselected}
                                 className={`w-full px-4 py-2 border font-medium rounded-lg text-sm outline-none transition-all
@@ -255,7 +272,7 @@ export default function ReservationForm({ initialData }: Props) {
                             </label>
                             <select
                                 value={formData.durationInMinutes}
-                                onChange={(e) => setFormData({ ...formData, durationInMinutes: parseInt(e.target.value) })}
+                                onChange={(e) => setFormData(prev => ({ ...prev, durationInMinutes: parseInt(e.target.value) }))}
                                 // Bloqueamos si es una reserva dirigida desde el horario disponible
                                 disabled={isPreselected}
                                 className={`w-full px-4 py-2 border rounded-lg text-sm outline-none transition-all
@@ -289,7 +306,19 @@ export default function ReservationForm({ initialData }: Props) {
 
                                 <button
                                     type="button"
-                                    onClick={() => setIsRegistered(!isRegistered)}
+                                    onClick={() => {
+                                        const next = !isRegistered;
+                                        setIsRegistered(next);
+                                        // Si regresamos a modo manual, reseteamos a CONSUMIDOR FINAL
+                                        if (!next) {
+                                            setFormData(prev => ({
+                                                ...prev,
+                                                nameCustomer: 'CONSUMIDOR FINAL',
+                                                dniCustomer: '',
+                                                idCustomer: user?.uid
+                                            }));
+                                        }
+                                    }}
                                     className={`relative border-2  inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none
                                      ring-offset-2 focus:ring-2 focus:ring-brand-black ${isRegistered ? 'bg-brand-black/10' : 'bg-brand-black'
                                         }`}
@@ -336,7 +365,7 @@ export default function ReservationForm({ initialData }: Props) {
                                         placeholder="Nombre Usuario Cliente"
                                         readOnly
                                         value={formData.nameCustomer || user?.nameUser}
-                                        onChange={(e) => setFormData({ nameCustomer: user?.nameUser })}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, nameCustomer: user?.nameUser || '' }))}
                                         className="w-full px-4 py-2 border bg-brand-black  border-red-700 text-brand-white rounded-lg text-sm 
                                          focus:ring-2 focus:ring-brand-black/10 outline-none" />
 
@@ -346,7 +375,7 @@ export default function ReservationForm({ initialData }: Props) {
                                         placeholder="DNI / Documento Customer"
                                         readOnly
                                         value={formData.dniCustomer}
-                                        onChange={(e) => setFormData({ ...formData, dniCustomer: e.target.value })}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, dniCustomer: e.target.value }))}
                                         className="w-full px-4 py-2 border border-brand-balck/10 rounded-lg text-sm bg-brand-black text-brand-white"
                                     />
 
@@ -356,8 +385,8 @@ export default function ReservationForm({ initialData }: Props) {
                                     <input
                                         type="text"
                                         placeholder="Nombre Cliente"
-                                        value={formData.nameCustomer || 'Consumidor Final   '}
-                                        onChange={(e) => setFormData({ ...formData, nameCustomer: e.target.value })}
+                                        value={formData.nameCustomer}
+                                        onChange={(e) => setFormData(prev => ({ ...prev, nameCustomer: e.target.value }))}
                                         className="w-full px-4 py-2 border bg-brand-black border-brand-gray/10 text-brand-white rounded-lg text-sm 
                             focus:ring-2 focus:ring-brand-black/10 outline-none"
                                     />
@@ -370,7 +399,7 @@ export default function ReservationForm({ initialData }: Props) {
                                             const val = e.target.value;
                                             // Solo permite números y máximo 8 caracteres
                                             if (/^\d*$/.test(val) && val.length <= 8) {
-                                                setFormData({ ...formData, dniCustomer: val });
+                                                setFormData(prev => ({ ...prev, dniCustomer: val }));
                                             }
                                         }}
                                         maxLength={8} // Evita que se escriba más de 8
@@ -407,7 +436,7 @@ export default function ReservationForm({ initialData }: Props) {
 
                                     // SI SE DESACTIVA (!nextState), RESERTEAMOS EL VALOR A 0
                                     if (!nextState) {
-                                        setFormData({ ...formData, descuento: 0 });
+                                        setFormData(prev => ({ ...prev, descuento: 0 }));
                                     }
                                 }}
                                 className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${showDiscount ? 'bg-brand-gold' : 'bg-gray-300'
@@ -430,14 +459,14 @@ export default function ReservationForm({ initialData }: Props) {
 
                             <select
                                 value={formData.descuento ?? 0}
-                                onChange={(e) => setFormData({ ...formData, descuento: Number(e.target.value) })}
-                              /*   onChange={(e) => {
-                                const valor = Number(e.target.value);
-                                setFormData(prev => ({ 
-                                ...prev, 
-                                descuento: valor 
-                                }));
-                            }} */
+                                onChange={(e) => setFormData(prev => ({ ...prev, descuento: Number(e.target.value) }))}
+                                /*   onChange={(e) => {
+                                  const valor = Number(e.target.value);
+                                  setFormData(prev => ({ 
+                                  ...prev, 
+                                  descuento: valor 
+                                  }));
+                              }} */
                                 className="w-full px-4 py-2 border border-brand-gray rounded-lg text-sm focus:ring-2 focus:ring-brand-gold outline-none
                                  bg-white font-bold"
                             >
@@ -449,83 +478,74 @@ export default function ReservationForm({ initialData }: Props) {
 
                             {/* Feedback visual del ahorro */}
                             <p className="text-[10px] text-success font-medium italic ml-1">
-                                Ahorro: S/ {((initialData.campo?.pricePerHour || 0) * ((formData?.descuento || 0)  / 100)).toFixed(2)}
+                                Ahorro: {user?.currency?.symbol || "$"} {((initialData.campo?.pricePerHour || 0) * ((formData?.descuento || 0) / 100)).toFixed(2)}
                             </p>
                         </div>
                     )}
 
                     <div className="grid grid-cols-4 gap-2">
-                   {['CASH', 'YAPE', 'CREDIT_CARD', 'DEBIT_CARD'].map((m) => ( 
-                         
-                            <button key={m} type="button" onClick={() => setFormData({ ...formData, paymentMethod: m })} className={`py-3 rounded-lg border text-[9px] font-black transition-all ${formData.paymentMethod === m ? 'bg-brand-black text-brand-gold shadow-lg scale-105' : 'text-gray-400 border-brand-gray'}`}>
+                        {(user?.role === 'CUSTOMER'
+                            ? ['CASH', 'PAGO_MOVIL']
+                            : ['CASH', 'PAGO_MOVIL', 'CREDIT_CARD', 'DEBIT_CARD']
+                        ).map((m) => (
+                            <button
+                                key={m}
+                                type="button"
+                                onClick={() => setFormData(prev => ({ ...prev, paymentMethod: m }))}
+                                className={`py-3 rounded-lg border text-[9px] font-black transition-all ${formData.paymentMethod === m ? 'bg-brand-black text-brand-gold shadow-lg scale-105' : 'text-gray-400 border-brand-gray'}`}
+                            >
                                 {m.replace('_', ' ')}
                             </button>
                         ))}
                     </div>
 
-                        <button type="submit" disabled={loading} className="w-full py-4 rounded-xl font-black bg-brand-gold
-                         text-brand-black hover:bg-black hover:text-brand-gold transition-all shadow-xl">
-                        {loading ? "Procesando..." : `Confirmar Pago S/ ${finalPrice.toFixed(2)}`}
+                    {formData.paymentMethod === 'PAGO_MOVIL' && (
+                        <div className="space-y-1 animate-in zoom-in duration-200">
+                            <label className="text-[10px] font-black text-brand-gold uppercase ml-1 flex items-center gap-2">
+                                <Phone size={12} /> Número de Celular del Pago
+                            </label>
+                            <input
+                                required
+                                type="text"
+                                name="paymentPhone"
+                                value={formData.phonePayment || ''}
+                                onChange={(e) => {
+                                    const val = e.target.value.replace(/\D/g, '');
+                                    if (val.length <= 10) {
+                                        setFormData(prev => ({ ...prev, phonePayment: val }));
+                                    }
+                                }}
+                                placeholder="Ej: 987654321"
+                                className="w-full px-4 py-2 border bg-brand-black border-brand-gray/10 text-brand-white rounded-lg text-sm 
+                                focus:ring-2 focus:ring-brand-gold/20 outline-none placeholder:text-gray-600"
+                            />
+                            <p className="text-[9px] text-gray-500 italic ml-1">* El número con el que realizaste el depósito</p>
+                        </div>
+                    )}
+
+                    <button
+                        type="submit"
+                        disabled={loading || !formData.paymentMethod}
+                        className={`w-full py-4 rounded-xl font-black transition-all shadow-xl
+                            ${!formData.paymentMethod
+                                ? 'bg-gray-800 text-gray-500 cursor-not-allowed border border-brand-gray/20'
+                                : 'bg-brand-gold text-brand-black hover:bg-black hover:text-brand-gold'
+                            }`}
+                    >
+                        {loading ? "Procesando..." :
+                            !formData.paymentMethod ? "Seleccione Método de Pago" :
+                                `Confirmar Pago ${user?.currency?.symbol || "$"} ${finalPrice.toFixed(2)}`}
                     </button>
 
-              </div>              
-                    { errorPayment  && (
-                        <ErrorAlert
-                            message={error}
-                            onClose={()=> setErrorPayment(false)}
-                        />
-                    )}
+                </div>
+                {errorPayment && (
+                    <ErrorAlert
+                        message={error}
+                        onClose={() => setErrorPayment(false)}
+                    />
+                )}
             </form>
 
-            {/* MODAL DE ÉXITO (PANTALLA COMPLETA) */}
-      {/*       {isSuccess && (
-                <div className="fixed inset-0 z-[200] flex items-center justify-center bg-brand-black p-4 animate-in fade-in duration-500">
-                    <div className="max-w-sm w-full text-center space-y-6 animate-in zoom-in-95 duration-300">
-                        <div className="relative mx-auto w-24 h-24">
-                            <div className="absolute inset-0 bg-brand-gold rounded-full animate-ping opacity-20"></div>
-                            <div className="relative bg-brand-gold rounded-full w-24 h-24 flex items-center justify-center shadow-[0_0_30px_rgba(212,175,55,0.4)]">
-                                <CheckCircle2 size={48} className="text-brand-black" />
-                            </div>
-                        </div>
-
-                        <div className="space-y-2">
-                            <h2 className="text-3xl font-black text-brand-white uppercase tracking-tighter">
-                                ¡Reserva <span className="text-brand-gold">Exitosa</span>!
-                            </h2>
-                            <p className="text-gray-400 text-sm">
-                                Tu cancha ha sido separada. Hemos enviado los detalles a tu correo.
-                            </p>
-                        </div>
-
-                        <div className="bg-white/5 border border-white/10 rounded-2xl p-4 text-left">
-                            <p className="text-[10px] font-bold text-brand-gold uppercase tracking-widest mb-1">Cancha</p>
-                            <p className="text-brand-white font-bold text-sm mb-3">{initialData.fieldName}</p>
-                            <div className="flex justify-between border-t border-white/10 pt-3">
-                                <div>
-                                    <p className="text-[10px] text-gray-500 font-bold uppercase">Fecha</p>
-                                    <p className="text-xs text-brand-white font-bold">{initialData.date}</p>
-                                </div>
-                                <div className="text-right">
-                                    <p className="text-[10px] text-gray-500 font-bold uppercase">Hora</p>
-                                    <p className="text-xs text-brand-white font-bold">{initialData.time}</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div className="flex flex-col gap-3">
-                            <button
-                                onClick={() => router.push(`/${user?.slug}/dashboard`)}
-                                className="w-full bg-brand-gold text-brand-black font-black py-4 rounded-xl text-xs uppercase flex items-center justify-center gap-2 hover:scale-105 transition-transform"
-                            >
-                                Ir al Dashboard <ArrowRight size={16} />
-                            </button>
-                            <button className="flex items-center justify-center gap-2 text-gray-400 text-[10px] font-bold uppercase hover:text-brand-white transition-colors">
-                                <Share2 size={14} /> Compartir con el equipo
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            )} */}
         </>
     );
 }

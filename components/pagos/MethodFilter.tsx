@@ -8,7 +8,7 @@ export function MethodFilter() {
 
   const methods = [
     { label: 'Todos', value: '' },
-    { label: 'Yape', value: 'YAPE' },
+    { label: 'PAGO_MOVIL', value: 'PAGO_MOVIL' },
     { label: 'Efectivo', value: 'CASH' },
     { label: 'Tarjeta', value: 'CREDIT_CARD' },
     { label: 'Débito', value: 'DEBIT_CARD' }
@@ -29,11 +29,10 @@ export function MethodFilter() {
         <button
           key={m.value}
           onClick={() => handleChange(m.value)}
-          className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${
-            currentMethod === m.value 
-            ? 'bg-brand-black text-brand-gold shadow-sm' 
+          className={`px-4 py-1.5 text-xs font-bold rounded-lg transition-all ${currentMethod === m.value
+            ? 'bg-brand-black text-brand-gold shadow-sm'
             : 'text-gray-500 hover:text-brand-black'
-          }`}
+            }`}
         >
           {m.label}
         </button>

@@ -1,14 +1,17 @@
 //interfaces
+import { getServerUser } from '@/app/actions/userServer';
 import { BookingType } from '../../types/booking';
 //icons
-import { Clock, MapPin, User, Calendar, CreditCard, Mail } from 'lucide-react';
+import { Clock, MapPin, User, Calendar, CreditCard, Mail, IdCard } from 'lucide-react';
 //routes
 import Link from 'next/link';
 
-export default function BookingCard({ booking }: { booking: BookingType }) {
+export default async function BookingCard({ booking }: { booking: BookingType }) {
 
-   const slug = booking.businessId?.slug;
-   //console.log(" name bookind card ", booking)
+  const user = await getServerUser();
+
+  const slug = booking.businessId?.slug;
+  console.log(" name bookind card ", booking)
 
   const formatTime = (dateStr: string) => {
     return new Date(dateStr).toLocaleTimeString('es-PE', {
@@ -25,9 +28,9 @@ export default function BookingCard({ booking }: { booking: BookingType }) {
       year: 'numeric',
     });
   };
-const stateColors = {
+  const stateColors = {
     CONFIRMED: 'bg-green-500/10 text-green-600 border-green-500/20',
-    PENDING:   'bg-brand-gold/10 text-brand-gold border-brand-gold/20',
+    PENDING: 'bg-brand-gold/10 text-brand-gold border-brand-gold/20',
     CANCELLED: 'bg-gray-500/10 text-gray-500 border-gray-500/20',
     COMPLETED: 'bg-brand-black text-brand-white border-brand-black',
   };
@@ -35,17 +38,17 @@ const stateColors = {
   // 2. Mapeo de etiquetas amigables
   const stateLabels = {
     CONFIRMED: '● Confirmada',
-    PENDING:   '○ Pendiente',
+    PENDING: '○ Pendiente',
     CANCELLED: '✕ Cancelada',
     COMPLETED: '✓ Completada',
   };
 
   return (
-    <div className="w-full md:w-[15rem]  bg-brand-white rounded-xl border border-brand-gray shadow-sm overflow-hidden
+    <div className="w-full md:w-[17rem] bg-brand-white rounded-xl border border-brand-gray shadow-sm overflow-hidden
      flex flex-col hover:border-brand-gold transition-all">
 
 
- {/* Indicador de Estado Superior */}
+      {/* Indicador de Estado Superior */}
       <div className={`text-[11px] font-black py-1.5 px-4 border-b uppercase tracking-widest transition-colors ${stateColors[booking.state] || 'bg-brand-gray text-gray-500'}`}>
         {stateLabels[booking.state] || booking.state}
       </div>
@@ -54,7 +57,7 @@ const stateColors = {
           <div>
             <h3 className="font-bold text-brand-black truncate text-[15px] leading-tight uppercase">
               {booking.fieldId?.name}
-              
+
             </h3>
             <div className="flex items-center gap-1 text-gray-500 text-xs mt-1">
               <MapPin size={12} />
@@ -63,7 +66,7 @@ const stateColors = {
           </div>
           <div className="text-right">
             <span className="block text-xs text-gray-400 font-bold uppercase">Total</span>
-            <span className="text-xl font-black text-brand-black">S/ {booking.totalPrice}</span>
+            <span className="text-[16px] font-black text-brand-black">{user?.currency?.symbol || "$"} {booking.totalPrice}</span>
           </div>
         </div>
 
@@ -82,40 +85,47 @@ const stateColors = {
               {formatTime(booking.startTime)} - {formatTime(booking.endTime)}
             </p>
           </div>
-        
+
         </div>
-  {/*     <span className="text-[11px] font-bold text-gray-400 uppercase">
+        {/*     <span className="text-[11px] font-bold text-gray-400 uppercase">
             duracion: {booking.durationInMinutes} min
           </span> */}
-        <div className="mt-4 flex items-center justify-between  ">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-brand-gray/20 flex items-center justify-center">
+        <div className='flex flex-col items-start gap-2 '>
+
+          <div className=" flex flex-row items-center ">
+
+            <div className="w-8 h-8 rounded-full bg-brand-gray/20 ">
               <User size={18} className="text-brand-gold" />
             </div>
-            <span className="text-xs font-medium text-gray-600 italic">{booking.userId.name}</span>
+            <span className="text-xs font-medium text-gray-600 italic"> {booking?.customerName?.toLocaleUpperCase()}</span>
+
+          </div>
+          <div className='flex  flex-row gap-1'>
+
+            <div className="w-8 h-8 rounded-full bg-brand-gray/20 ">
+              <IdCard size={18} className="text-brand-gold" />
+            </div>
+            <span className="text-sm font-medium text-gray-600 italic">{booking?.customerDNI}</span>
           </div>
         </div>
-        <div className='flex  flex-row gap-1'>
-            <Mail size={18} className="text-brand-gold" />
-             <span className="text-xs font-medium text-gray-600 italic">{booking.userId?.email}</span> 
-        </div>
-          
-         
+
+
+
       </div>
 
       {/* Acciones Rápidas */}
-            <div className="bg-brand-gray/5 p-3">
-            {booking.state === 'CONFIRMED' ? (
-                /* VISTA CUANDO YA ESTÁ PAGADO/CONFIRMADO */
-                <div className="w-full text-center px-2 py-2 bg-black/90 border border-success/20 rounded">
-                <span className="text-[10px] font-black text-success uppercase tracking-widest">
-                    ✓ Reserva Confirmada y Pagada
-                </span>
-                </div>
-            ) : (
-                /* VISTA CUANDO ESTÁ PENDIENTE */
-                <div className="flex gap-2 w-full">
-                {/*  <button 
+      <div className="bg-brand-gray/5 p-3">
+        {booking.state === 'CONFIRMED' ? (
+          /* VISTA CUANDO YA ESTÁ PAGADO/CONFIRMADO */
+          <div className="w-full text-center px-2 py-2 bg-black/90 border border-success/20 rounded">
+            <span className="text-[10px] font-black text-success uppercase tracking-widest">
+              ✓ Reserva Confirmada y Pagada
+            </span>
+          </div>
+        ) : (
+          /* VISTA CUANDO ESTÁ PENDIENTE */
+          <div className="flex gap-2 w-full">
+            {/*  <button 
                     className="flex-1 text-[10px] font-bold bg-brand-black text-brand-gold py-2 rounded uppercase hover:bg-brand-black/90 transition-all"
                 >
                     Cancelar
@@ -129,9 +139,9 @@ const stateColors = {
                     Pagar S/ {booking.totalPrice}
                     </button>
                 </Link>  */}
-                </div>
-            )}
-            </div>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

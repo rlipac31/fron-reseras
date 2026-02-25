@@ -1,0 +1,300 @@
+"use client";
+import { useState } from 'react';
+import {
+    CheckCircle2,
+    Loader2,
+    User,
+    Mail,
+    Lock,
+    Unlock,
+    Fingerprint,
+    Phone,
+    X,
+    AlertCircle,
+    Save,
+    Edit2
+} from 'lucide-react';
+import { updateUser } from '@/app/actions/user';
+import { useRouter } from 'next/navigation';
+
+interface EditCustomerFormProps {
+    customer: {
+        uid: string;
+        name: string;
+        email: string;
+        dni: string;
+        phone: string;
+    };
+    businessSlug: string;
+}
+
+export default function EditCustomerForm({ customer, businessSlug }: EditCustomerFormProps) {
+    const [loading, setLoading] = useState(false);
+    const [showSuccess, setShowSuccess] = useState(false);
+    const [errorMsg, setErrorMsg] = useState<string | null>(null);
+    const router = useRouter();
+
+    const [isEditable, setIsEditable] = useState({
+        name: false,
+        email: false,
+        dni: false,
+        phone: false,
+        password: false
+    });
+
+    const [formData, setFormData] = useState({
+        uid: customer.uid || '',
+        name: customer.name || '',
+        email: customer.email || '',
+        dni: customer.dni || '',
+        phone: customer.phone || '',
+        password: ''
+    });
+
+    const toggleField = (field: keyof typeof isEditable) => {
+        setIsEditable(prev => ({ ...prev, [field]: !prev[field] }));
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+
+        if (name === 'dni') {
+            const onlyNums = value.replace(/[^0-9]/g, '');
+            if (onlyNums.length <= 8) {
+                setFormData(prev => ({ ...prev, [name]: onlyNums }));
+            }
+            return;
+        }
+
+        if (name === 'phone') {
+            const onlyNums = value.replace(/[^0-9]/g, '');
+            if (onlyNums.length <= 10) {
+                setFormData(prev => ({ ...prev, [name]: onlyNums }));
+            }
+            return;
+        }
+
+        if (name === 'name') {
+            const onlyLetters = value.replace(/[0-9]/g, '');
+            setFormData(prev => ({ ...prev, [name]: onlyLetters }));
+            return;
+        }
+
+        setFormData(prev => ({ ...prev, [name]: value }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setErrorMsg(null);
+
+        if (isEditable.dni && formData.dni.length > 0 && formData.dni.length !== 8) {
+            setErrorMsg("El DNI debe tener exactamente 8 números");
+            return;
+        }
+
+        if (isEditable.phone && formData.phone.length < 9) {
+            setErrorMsg("El número de WhatsApp debe tener entre 9 y 10 dígitos");
+            return;
+        }
+
+        setLoading(true);
+        // Usamos customer.uid para la URL
+        const result = await updateUser(customer.uid, formData);
+
+        if (result.success) {
+            setLoading(false);
+            setShowSuccess(true);
+            setTimeout(() => {
+                router.push(`/${businessSlug}/dashboard/customers`);
+                router.refresh();
+            }, 1500);
+        } else {
+            setLoading(false);
+            setErrorMsg(result.error || "Ocurrió un error inesperado al actualizar");
+        }
+    };
+
+    return (
+        <div className="max-w-xl mx-auto px-4 py-8 w-full">
+            {/* MODAL DE ÉXITO */}
+            {showSuccess && (
+                <div className="fixed inset-0 bg-brand-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                    <div className="bg-white rounded-3xl p-8 flex flex-col items-center text-center shadow-2xl animate-in zoom-in duration-300">
+                        <div className="w-20 h-20 bg-brand-gold text-brand-black rounded-full flex items-center justify-center mb-4">
+                            <CheckCircle2 size={48} />
+                        </div>
+                        <h3 className="text-2xl font-black text-brand-black uppercase italic">¡Datos Actualizados!</h3>
+                        <p className="text-gray-500 mt-2 font-medium">Los cambios se han guardado correctamente.</p>
+                    </div>
+                </div>
+            )}
+
+            <div className="bg-white rounded-3xl border border-brand-gray overflow-hidden shadow-2xl">
+                {/* HEADER */}
+                <div className="bg-brand-black p-6 flex items-center justify-between border-b-4 border-brand-gold">
+                    <div>
+                        <h2 className="text-xl font-black text-white uppercase tracking-tighter flex items-center gap-2">
+                            <Save size={24} className="text-brand-gold" /> Editar Cliente
+                        </h2>
+                    </div>
+                    <button onClick={() => router.back()} className="text-gray-400 hover:text-white transition-colors">
+                        <X size={24} />
+                    </button>
+                </div>
+
+                <form onSubmit={handleSubmit} className="p-6 md:p-8 space-y-6">
+
+                    {errorMsg && (
+                        <div className="bg-red-50 border-l-4 border-red-500 p-4 rounded-xl flex items-center gap-3">
+                            <AlertCircle className="text-red-500 shrink-0" size={20} />
+                            <p className="text-red-800 text-xs font-bold uppercase">{errorMsg}</p>
+                        </div>
+                    )}
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* NOMBRE */}
+                        <div className="md:col-span-2 space-y-1.5">
+                            <div className="flex items-center justify-between ml-1">
+                                <label className="text-[11px] font-black text-brand-black uppercase flex items-center gap-1.5">
+                                    <User size={14} className="text-brand-gold" /> Nombre y Apellidos
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={() => toggleField('name')}
+                                    className={`p-1.5 rounded-lg transition-all flex items-center gap-2 text-[10px] font-bold uppercase ${isEditable.name ? 'text-brand-gold bg-brand-black shadow-lg scale-105' : 'text-gray-400 hover:text-brand-black bg-gray-100'}`}
+                                >
+                                    {isEditable.name ? <Unlock size={14} /> : <Lock size={14} />}
+                                    {isEditable.name ? 'Editar Activo' : 'Desbloquear'}
+                                </button>
+                            </div>
+                            <input
+                                required
+                                type='text'
+                                name="name"
+                                value={formData.name}
+                                onChange={handleChange}
+                                disabled={!isEditable.name}
+                                className={`w-full px-4 py-3 border border-brand-gray rounded-xl text-sm outline-none transition-all font-semibold ${!isEditable.name ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-dashed' : 'bg-gray-50 focus:border-brand-black focus:ring-4 focus:ring-brand-gold/20 shadow-inner'}`}
+                            />
+                        </div>
+
+                        {/* EMAIL */}
+                        <div className="space-y-1.5">
+                            <div className="flex items-center justify-between ml-1">
+                                <label className="text-[11px] font-black text-brand-black uppercase flex items-center gap-1.5">
+                                    <Mail size={14} className="text-brand-gold" /> Email
+                                </label>
+                                {/* <button
+                                    type="button"
+                                    onClick={() => toggleField('email')}
+                                    className={`p-1.5 rounded-lg transition-all ${isEditable.email ? 'text-brand-gold bg-brand-black' : 'text-gray-400 hover:text-brand-black bg-gray-100'}`}
+                                >
+                                    {isEditable.email ? <Unlock size={14} /> : <Lock size={14} />}
+                                </button> */}
+                            </div>
+                            <input
+                                required
+                                type='email'
+                                name="email"
+                                readOnly
+                                value={formData.email}
+                                onChange={handleChange}
+                                // disabled={!isEditable.email}
+                                className={`w-full px-4 py-3 border border-brand-gray rounded-xl text-sm outline-none transition-all font-semibold ${!isEditable.email ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-dashed' : 'bg-gray-50 focus:border-brand-black focus:ring-4 focus:ring-brand-gold/20 shadow-inner'}`}
+                            />
+                        </div>
+
+                        {/* PASSWORD */}
+                        <div className="space-y-1.5">
+                            <div className="flex items-center justify-between ml-1">
+                                <label className="text-[11px] font-black text-brand-black uppercase flex items-center gap-1.5">
+                                    <Edit2 size={14} className="text-brand-gold" /> Password
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={() => toggleField('password')}
+                                    className={`p-1.5 rounded-lg transition-all ${isEditable.password ? 'text-brand-gold bg-brand-black' : 'text-gray-400 hover:text-brand-black bg-gray-100'}`}
+                                >
+                                    {isEditable.password ? <Unlock size={14} /> : <Lock size={14} />}
+                                </button>
+                            </div>
+                            <input
+                                type='password'
+                                name="password"
+                                value={formData.password}
+                                onChange={handleChange}
+                                disabled={!isEditable.password}
+                                className={`w-full px-4 py-3 border border-brand-gray rounded-xl text-sm outline-none transition-all font-semibold ${!isEditable.password ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-dashed' : 'bg-gray-50 focus:border-brand-black focus:ring-4 focus:ring-brand-gold/20 shadow-inner'}`}
+                                placeholder={isEditable.password ? 'Mín. 6 caracteres' : '••••••••'}
+                            />
+                        </div>
+
+                        {/* DNI */}
+                        <div className="space-y-1.5">
+                            <div className="flex items-center justify-between ml-1">
+                                <label className="text-[11px] font-black text-brand-black uppercase flex items-center gap-1.5">
+                                    <Fingerprint size={14} className="text-brand-gold" /> DNI
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={() => toggleField('dni')}
+                                    className={`p-1.5 rounded-lg transition-all ${isEditable.dni ? 'text-brand-gold bg-brand-black' : 'text-gray-400 hover:text-brand-black bg-gray-100'}`}
+                                >
+                                    {isEditable.dni ? <Unlock size={14} /> : <Lock size={14} />}
+                                </button>
+                            </div>
+                            <input
+                                required
+                                type='text'
+                                name="dni"
+                                value={formData.dni}
+                                onChange={handleChange}
+                                disabled={!isEditable.dni}
+                                className={`w-full px-4 py-3 border border-brand-gray rounded-xl text-sm outline-none transition-all font-semibold ${!isEditable.dni ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-dashed' : 'bg-gray-50 focus:border-brand-black focus:ring-4 focus:ring-brand-gold/20 shadow-inner'}`}
+                            />
+                        </div>
+
+                        {/* WHATSAPP */}
+                        <div className="space-y-1.5">
+                            <div className="flex items-center justify-between ml-1">
+                                <label className="text-[11px] font-black text-brand-black uppercase flex items-center gap-1.5">
+                                    <Phone size={14} className="text-brand-gold" /> WhatsApp
+                                </label>
+                                <button
+                                    type="button"
+                                    onClick={() => toggleField('phone')}
+                                    className={`p-1.5 rounded-lg transition-all ${isEditable.phone ? 'text-brand-gold bg-brand-black' : 'text-gray-400 hover:text-brand-black bg-gray-100'}`}
+                                >
+                                    {isEditable.phone ? <Unlock size={14} /> : <Lock size={14} />}
+                                </button>
+                            </div>
+                            <input
+                                required
+                                type='text'
+                                name="phone"
+                                value={formData.phone}
+                                onChange={handleChange}
+                                disabled={!isEditable.phone}
+                                maxLength={10}
+                                minLength={7}
+                                className={`w-full px-4 py-3 border border-brand-gray rounded-xl text-sm outline-none transition-all font-semibold ${!isEditable.phone ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-dashed' : 'bg-gray-50 focus:border-brand-black focus:ring-4 focus:ring-brand-gold/20 shadow-inner'}`}
+                            />
+                        </div>
+                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full mt-4 bg-brand-gold text-brand-black font-black py-4 rounded-2xl uppercase tracking-widest hover:bg-brand-gold/90 disabled:opacity-50 transition-all flex items-center justify-center gap-2 shadow-xl active:scale-[0.98]"
+                    >
+                        {loading ? (
+                            <Loader2 className="animate-spin" size={20} />
+                        ) : (
+                            "Guardar Cambios"
+                        )}
+                    </button>
+                </form>
+            </div>
+        </div>
+    );
+}

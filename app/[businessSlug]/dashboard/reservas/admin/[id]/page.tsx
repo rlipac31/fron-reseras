@@ -6,7 +6,7 @@ import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { useParams, useRouter } from 'next/navigation';
 import { Save, ArrowLeft, Loader2, Calendar, User, Trophy, CreditCard, Clock } from 'lucide-react';
-import { getBookingId, getFieldIdReservations } from '@/app/actions/bookings'; 
+import { getBookingId, getFieldIdReservations } from '@/app/actions/bookings';
 import { useUser } from '@/context/UserContext';
 import { updateBookingAction } from '@/app/actions/bookings';
 
@@ -18,7 +18,7 @@ dayjs.extend(timezone);
 const TIMEZONE = "America/Lima";
 
 const EditReserva = () => {
-  const router = useRouter();              
+  const router = useRouter();
   const params = useParams();
   const bookingId = String(params.id || "");
   const { user } = useUser();
@@ -29,7 +29,7 @@ const EditReserva = () => {
   const [saving, setSaving] = useState(false);
   const [fetchingSlots, setFetchingSlots] = useState(false); // Para el Skeleton
   const [isEditable, setIsEditable] = useState<Record<string, boolean>>({});
-  
+
   const [baseDate, setBaseDate] = useState<string>(dayjs().tz(TIMEZONE).format('YYYY-MM-DD'));
   const [bookingsData, setBookingsData] = useState<any[]>([]);
 
@@ -94,7 +94,7 @@ const EditReserva = () => {
         hour,
         label: timeLabel,
         // Disponible si no está ocupada y no ha pasado (o si es la reserva que estamos editando)
-        available: ( !isOccupied && !isPast ) || isCurrentReservationSlot,
+        available: (!isOccupied && !isPast) || isCurrentReservationSlot,
         reason: isOccupied ? 'OCUPADO' : (isPast ? 'PASADO' : 'LIBRE')
       });
     }
@@ -121,43 +121,43 @@ const EditReserva = () => {
 
   // ... dentro de tu componente EditReserva ...
 
-const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setSaving(true);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSaving(true);
 
-  // Preparamos la data que espera tu backend
-  // Nota: Enviamos solo lo necesario para no sobrecargar el body
-  const updateData = {
-   /*  userId: {
-      name: booking.userId.name,
-      uid: booking.userId.uid
-    }, */
-   // fieldId: booking.fieldId._id,
-    startTime: booking.startTime,
-    // El backend calculará el endTime si es necesario, 
-    // pero si lo necesitas puedes enviarlo también
+    // Preparamos la data que espera tu backend
+    // Nota: Enviamos solo lo necesario para no sobrecargar el body
+    const updateData = {
+      /*  userId: {
+         name: booking.userId.name,
+         uid: booking.userId.uid
+       }, */
+      // fieldId: booking.fieldId._id,
+      startTime: booking.startTime,
+      // El backend calculará el endTime si es necesario, 
+      // pero si lo necesitas puedes enviarlo también
+    };
+
+    const result = await updateBookingAction(bookingId, updateData);
+
+    if (result.success) {
+      alert("✅ ¡Excelente! Reserva actualizada."); // Aquí puedes usar Sonner o Toast
+      router.push(`/${user?.slug}/dashboard/reservas`);
+      router.refresh();
+    } else {
+      // Aquí se mostrará el mensaje: "No puedes editar con menos de 2 horas..."
+      alert(`❌ Error: ${result.message}`);
+    }
+
+    setSaving(false);
   };
-
-  const result = await updateBookingAction(bookingId, updateData);
-
-  if (result.success) {
-    alert("✅ ¡Excelente! Reserva actualizada."); // Aquí puedes usar Sonner o Toast
-    router.push(`/${user?.slug}/dashboard/reservas`);
-    router.refresh();
-  } else {
-    // Aquí se mostrará el mensaje: "No puedes editar con menos de 2 horas..."
-    alert(`❌ Error: ${result.message}`);
-  }
-  
-  setSaving(false);
-};
-/* bolea el boton si si an npasado menos de 2 horas */
-const isTooLateToEdit = () => {
-  if (!booking?.startTime) return false;
-  const now = dayjs();
-  const start = dayjs(booking.startTime);
-  return start.diff(now, 'hour', true) < 2;
-};
+  /* bolea el boton si si an npasado menos de 2 horas */
+  const isTooLateToEdit = () => {
+    if (!booking?.startTime) return false;
+    const now = dayjs();
+    const start = dayjs(booking.startTime);
+    return start.diff(now, 'hour', true) < 2;
+  };
 
 
 
@@ -183,13 +183,13 @@ const isTooLateToEdit = () => {
               <h1 className="text-2xl font-black uppercase leading-tight">{booking?.userId?.name}</h1>
             </div>
             <div className="p-4 bg-white/5 rounded-2xl border border-white/10 hidden md:block">
-               <Calendar className="text-brand-gold" size={32} />
+              <Calendar className="text-brand-gold" size={32} />
             </div>
           </div>
 
           <form className="p-8 md:p-12 space-y-10">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-              
+
               {/* SECCIÓN IZQUIERDA: DATOS */}
               <div className="space-y-6">
                 <div className="space-y-3">
@@ -198,12 +198,12 @@ const isTooLateToEdit = () => {
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <input
                       value={booking?.userId?.name || ""}
-                      onChange={(e) => setBooking({...booking, userId: {...booking.userId, name: e.target.value}})}
+                      onChange={(e) => setBooking({ ...booking, userId: { ...booking.userId, name: e.target.value } })}
                       disabled={!isEditable.user}
                       className={`w-full pl-12 pr-12 py-4 rounded-2xl border-2 font-bold text-sm transition-all
                       ${isEditable.user ? 'border-brand-gold bg-white' : 'border-brand-gray bg-slate-50 text-slate-400'}`}
                     />
-                    <button type="button" onClick={() => setIsEditable({...isEditable, user: !isEditable.user})} className="absolute right-4 top-1/2 -translate-y-1/2">
+                    <button type="button" onClick={() => setIsEditable({ ...isEditable, user: !isEditable.user })} className="absolute right-4 top-1/2 -translate-y-1/2">
                       {isEditable.user ? '🔓' : '🔒'}
                     </button>
                   </div>
@@ -220,13 +220,13 @@ const isTooLateToEdit = () => {
                 </div>
 
                 <div className="bg-brand-gray/20 p-6 rounded-3xl flex items-center justify-between">
-                   <div className="flex items-center gap-3">
-                      <div className="bg-white p-3 rounded-xl shadow-sm text-brand-gold"><CreditCard /></div>
-                      <div>
-                        <p className="text-[10px] font-black text-slate-400 uppercase leading-none">Total Pagado</p>
-                        <p className="text-xl font-black text-brand-black">S/ {booking?.totalPrice}</p>
-                      </div>
-                   </div>
+                  <div className="flex items-center gap-3">
+                    <div className="bg-white p-3 rounded-xl shadow-sm text-brand-gold"><CreditCard /></div>
+                    <div>
+                      <p className="text-[10px] font-black text-slate-400 uppercase leading-none">Total Pagado</p>
+                      <p className="text-xl font-black text-brand-black">S/ {booking?.totalPrice}</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -247,7 +247,7 @@ const isTooLateToEdit = () => {
                 <div className="space-y-3">
                   <div className="flex justify-between items-center">
                     <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">2. Bloque Horario</label>
-                    <button type="button" onClick={() => setIsEditable({...isEditable, time: !isEditable.time})} className="text-xs font-bold text-brand-gold uppercase underline">
+                    <button type="button" onClick={() => setIsEditable({ ...isEditable, time: !isEditable.time })} className="text-xs font-bold text-brand-gold uppercase underline">
                       {isEditable.time ? "Fijar Hora" : "Cambiar Hora"}
                     </button>
                   </div>
@@ -263,10 +263,10 @@ const isTooLateToEdit = () => {
                           disabled={!slot.available}
                           onClick={() => handleTimeSelection(slot.hour)}
                           className={`py-3 rounded-xl border-2 text-[11px] font-black transition-all
-                            ${dayjs(booking.startTime).tz(TIMEZONE).hour() === slot.hour 
-                              ? 'bg-brand-black border-brand-black/40 text-brand-gold' 
-                              : slot.available 
-                                ? 'bg-white border-brand-gray hover:border-brand-gold text-brand-black hover:text-brand-white hover:bg-brand-gold' 
+                            ${dayjs(booking.startTime).tz(TIMEZONE).hour() === slot.hour
+                              ? 'bg-brand-black border-brand-black/40 text-brand-gold'
+                              : slot.available
+                                ? 'bg-white border-brand-gray hover:border-brand-gold text-brand-black hover:text-brand-white hover:bg-brand-gold'
                                 : 'bg-slate-100 border-slate-100 text-slate-300 opacity-50 cursor-not-allowed'}`}
                         >
                           {slot.label}
@@ -297,8 +297,8 @@ const isTooLateToEdit = () => {
               className="w-full bg-brand-black text-brand-gold font-black py-5 rounded-[2rem] flex items-center justify-center gap-4 hover:scale-[1.01] transition-all shadow-2xl disabled:opacity-50 uppercase tracking-[0.2em] text-xs mt-4"
             >
               {saving ? <Loader2 className="animate-spin" /> : <Save size={18} />}
-              {saving ? "Procesando cambios..." : isTooLateToEdit() ? "Edición bloqueada (-2h)" : "Actualizar Reserva"} 
-             
+              {saving ? "Procesando cambios..." : isTooLateToEdit() ? "Edición bloqueada (-2h)" : "Actualizar Reserva"}
+
             </button>
 
 

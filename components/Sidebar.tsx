@@ -11,6 +11,7 @@ import {
   CalendarDays,
   Users,
   Settings,
+  Banknote,
   CreditCard // Icono sugerido para pagos
 } from 'lucide-react';
 import { GiSoccerField } from "react-icons/gi";
@@ -23,10 +24,9 @@ interface NavItemProps {
 }
 
 const NavItem = ({ icon, label, active = false }: NavItemProps) => (
-  <div className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-    active 
-      ? 'bg-brand-gold text-brand-black font-bold shadow-lg shadow-brand-gold/10' 
-      : 'hover:bg-white/5 text-brand-white/70 hover:text-white'
+  <div className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${active
+    ? 'bg-brand-gold text-brand-black font-bold shadow-lg shadow-brand-gold/10'
+    : 'hover:bg-white/5 text-brand-white/70 hover:text-white'
     }`}>
     {icon}
     <span className="text-sm font-medium">{label}</span>
@@ -51,6 +51,12 @@ export default function Sidebar({ slug }: { slug: string }) {
       label: "Dashboard",
       icon: <LayoutDashboard size={20} />,
       roles: ['ADMIN', 'USER'] // Solo admin y user ven esto
+    },
+    {
+      href: `/${slug}/dashboard/pagos`,
+      label: "Pagos",
+      icon: <Banknote size={20} />,
+      roles: ['ADMIN', 'USER']
     },
     {
       href: `/${slug}/dashboard/reservas`,
@@ -94,10 +100,10 @@ export default function Sidebar({ slug }: { slug: string }) {
           .filter(item => item.roles.includes(user?.role || '')) // Filtro mágico
           .map((item) => (
             <Link key={item.href} href={item.href}>
-              <NavItem 
-                icon={item.icon} 
-                label={item.label} 
-                active={isActive(item.href)} 
+              <NavItem
+                icon={item.icon}
+                label={item.label}
+                active={isActive(item.href)}
               />
             </Link>
           ))
@@ -107,11 +113,11 @@ export default function Sidebar({ slug }: { slug: string }) {
       {/* CONFIGURACIÓN (Solo para Staff) */}
       {(user?.role === 'ADMIN' || user?.role === 'USER') && (
         <div className="mt-auto pt-6 border-t border-white/5">
-          <Link href={`/${slug}/dashboard/configuracion`}>
-            <NavItem 
-              icon={<Settings size={20} />} 
-              label="Configuración" 
-              active={isActive(`/${slug}/dashboard/configuracion`)} 
+          <Link href={`/${slug}/config`}>
+            <NavItem
+              icon={<Settings size={20} />}
+              label="Configuración"
+              active={isActive(`/${slug}/config`)}
             />
           </Link>
         </div>

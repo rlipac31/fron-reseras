@@ -8,6 +8,9 @@ interface UserData {
   role: string;
   slug?: string;
   businessId?: string;
+  currency?: { code: string; symbol: string };
+  zonaHoraria?: string;
+  configId?: string;
 }
 
 interface UserContextType {
@@ -23,26 +26,26 @@ export function UserProvider({ children, initialUser }: { children: ReactNode, i
   const [user, setUser] = useState<UserData | null>(initialUser);
   const [loading, setLoading] = useState(!initialUser); // Si no hay initialUser, activamos carga
   //console.log(" desde contes desde arriba.... user ", user)
- 
+
   useEffect(() => {
     // Solo ejecutamos verifySession si el servidor NO nos pasó datos (ej. navegación directa)
     if (!initialUser) {
       const verifySession = async () => {
         try {
-       // console.log("ejecutando getMe....debtreo del try")
-        const url =`/api-backend/auth/me`;//production
-        const urlLocal=`${process.env.NEXT_PUBLIC_API_URL}/auth/me`;
-          const res = await fetch(`${urlLocal}`, {
+          // console.log("ejecutando getMe....debtreo del try")
+          const url = `/api-backend/auth/me`;//production
+          // const urlLocal = `${process.env.NEXT_PUBLIC_API_URL}/auth/me`;
+          const res = await fetch(`${url}`, {
             method: "GET",
-            credentials: "include", 
-            
+            credentials: "include",
+
           });
 
           if (res.ok) {
             const data = await res.json();
             setUser(data.user);
-              // console.log(" user desde context ", user);
-         
+            // console.log(" user desde context ", user);
+
           } else {
             setUser(null);
           }
@@ -54,7 +57,7 @@ export function UserProvider({ children, initialUser }: { children: ReactNode, i
       };
       verifySession();
     }
-  }, [initialUser]); 
+  }, [initialUser]);
 
 
   return (
@@ -62,12 +65,12 @@ export function UserProvider({ children, initialUser }: { children: ReactNode, i
       {children}
     </UserContext.Provider>
   );
-} 
+}
 
 export function useUser() {
   const context = useContext(UserContext);
   if (context === undefined) {
-    return { user: null, setUser: () => {}, loading: false }; 
+    return { user: null, setUser: () => { }, loading: false };
   }
   return context;
 }

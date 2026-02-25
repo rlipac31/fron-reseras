@@ -7,9 +7,9 @@ import { cookies } from "next/headers";
 export async function createPayment(formData: PaymentDataRequest) {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
-  if(!token){
- //si no hay token
-      throw new Error(  "Eno existe token en la peticion");
+  if (!token) {
+    //si no hay token
+    throw new Error("Eno existe token en la peticion");
   }
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments`, {
@@ -27,7 +27,7 @@ export async function createPayment(formData: PaymentDataRequest) {
     }
     const data = res.json();
 
-    return { success: true, content:data };
+    return { success: true, content: data };
   } catch (error: any) {
     return { success: false, error: error.message };
   }
@@ -35,10 +35,10 @@ export async function createPayment(formData: PaymentDataRequest) {
 
 // listando pagos con filtro, dia semana mes y todo con dataPicker
 export async function getPagosConFiltro(
-  filter?: string, 
-  date?: string, 
+  filter?: string,
+  date?: string,
   method?: string, // Nuevo parámetro opcional
-  page = '1', 
+  page = '1',
   limit = '12'
 ) {
   try {
@@ -53,7 +53,7 @@ export async function getPagosConFiltro(
     params.append('limit', limit);
 
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/con-filtro?${params.toString()}`, {
-      headers: { 
+      headers: {
         'x-token': `${token}`,
         'Content-Type': 'application/json'
       },
@@ -62,38 +62,38 @@ export async function getPagosConFiltro(
 
     if (!res.ok) {
       console.error(`Error de API: ${res.status}`);
-      return { 
+      return {
         success: false,
-        data: [], 
+        data: [],
         pagination: { totalResults: 0, totalPages: 0, currentPage: parseInt(page), limit: parseInt(limit) },
         resumen: { totalGlobal: 0, porYape: 0, porEfectivo: 0, porTarjeta: 0 },
-        error: "No pudimos obtener los pagos en este momento." 
+        error: "No pudimos obtener los pagos en este momento."
       };
     }
 
     const result = await res.json();
-    
+
     // Mapeamos exactamente lo que viene de tu API de Node.js
-    return { 
+    return {
       success: result.success,
       pagination: result.pagination, // Trae totalResults, totalPages, etc.
-      resumen: result.resumenFinanciero || { 
-        totalGlobal: 0, 
-        porYape: 0, 
-        porEfectivo: 0, 
-        porTarjeta: 0 
+      resumen: result.resumenFinanciero || {
+        totalGlobal: 0,
+        porYape: 0,
+        porEfectivo: 0,
+        porTarjeta: 0
       },
       data: result.data || []
     };
 
   } catch (err) {
     console.error("Fallo crítico de conexión:", err);
-    return { 
+    return {
       success: false,
       pagination: { totalResults: 0, totalPages: 0, currentPage: parseInt(page), limit: parseInt(limit) },
-      data: [], 
+      data: [],
       resumen: { totalGlobal: 0, porYape: 0, porEfectivo: 0, porTarjeta: 0 },
-      error: "El servicio de pagos no está disponible. Por favor, intenta más tarde." 
+      error: "El servicio de pagos no está disponible. Por favor, intenta más tarde."
     };
   }
 }
@@ -104,12 +104,12 @@ export async function getPagosConFiltro(
 //  pagos, con un boton de confirmar pago, que ejecuta esta funcion, y luego revalida la pagina de pagos para mostrar
 //  el cambio de estado
 export async function confirmPaymentAction(paymentId: string) {
-    const cookieStore = await cookies();
-    const token = (await cookieStore).get('token')?.value;
+  const cookieStore = await cookies();
+  const token = (await cookieStore).get('token')?.value;
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/${paymentId}/completed`, {
       method: 'PATCH',
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
         'x-token': `${token}`
       },
@@ -126,12 +126,12 @@ export async function confirmPaymentAction(paymentId: string) {
 }
 
 export async function cancelPaymentAction(paymentId: string) {
-    const cookieStore = await cookies();
-    const token = (await cookieStore).get('token')?.value;
+  const cookieStore = await cookies();
+  const token = (await cookieStore).get('token')?.value;
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/${paymentId}/cancelled`, {
       method: 'PATCH',
-      headers: { 
+      headers: {
         'Content-Type': 'application/json',
         'x-token': `${token}`
       },
@@ -143,5 +143,46 @@ export async function cancelPaymentAction(paymentId: string) {
     return { success: true };
   } catch (error) {
     return { success: false, message: "No se pudo cancelar el pago" };
+  }
+}
+
+/**
+ * Obtiene el detalle de un pago específico por su ID.
+ * Utilizado para la página de detalle de pago.
+ */
+export async function getPaymentById(paymentId: string) {
+  try {
+    const cookieStore = await cookies();
+    const token = cookieStore.get('token')?.value;
+
+    if (!token) {
+      return { success: false, error: "Sesión no válida" };
+    }
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/detalle/${paymentId}`, {
+      headers: {
+        'x-token': token,
+        'Content-Type': 'application/json'
+      },
+      cache: 'no-store'
+    });
+
+    if (!res.ok) {
+      // Manejo específico si el backend devuelve 404
+      if (res.status === 404) {
+        return { success: false, error: "El pago no existe o ha sido eliminado" };
+      }
+      return { success: false, error: "Error al obtener el detalle del pago" };
+    }
+
+    const result = await res.json();
+    return {
+      success: true,
+      data: result.content // Tu backend devuelve { success: true, content: payment }
+    };
+
+  } catch (error) {
+    console.error("Error en getPaymentById:", error);
+    return { success: false, error: "Error de conexión con el servidor" };
   }
 }

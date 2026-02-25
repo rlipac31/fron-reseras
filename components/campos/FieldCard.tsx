@@ -30,7 +30,7 @@ export default function FieldCard2({ field }: FieldCardProps) {
     const [bookingsData, setBookingsData] = useState<any>(null);
     const [isLoadingBookings, setIsLoadingBookings] = useState(true);
     const [user, setUser] = useState<any>(null);
-
+console.log("user desde field card... ", user)
 
 
     const fieldId = String(field?._id || "");
@@ -97,7 +97,7 @@ export default function FieldCard2({ field }: FieldCardProps) {
         const slots = [];
 
         // 1. Obtenemos el "AHORA" en Lima
-        const nowInLima = dayjs().tz(TIMEZONE);
+        const nowInLima = dayjs().tz(user?.zonaHoraria || TIMEZONE);
         const isSelectedDateToday = selectedDate === nowInLima.format('YYYY-MM-DD');
 
         for (let hour = openTime; hour <= closeTime; hour++) {
@@ -111,7 +111,7 @@ export default function FieldCard2({ field }: FieldCardProps) {
 
             // 3. Verificamos si está ocupada en los datos del servidor
             const isOccupied = bookingsData?.some((booking: any) => {
-                const bookingHour = dayjs(booking.startTime).tz(TIMEZONE).hour();
+                const bookingHour = dayjs(booking.startTime).tz(user?.zonaHoraria || TIMEZONE).hour();
                 return bookingHour === hour;
             });
 
@@ -204,7 +204,7 @@ export default function FieldCard2({ field }: FieldCardProps) {
                             <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">
                                 Horarios Disponibles
                             </p>
-                            <span className="text-[9px] text-brand-gold font-bold">Zona: Lima (GMT-5)</span>
+                            <span className="text-[9px] text-brand-gold font-bold">Zona: {user?.zonaHoraria || "Lima (GMT-5)"}</span>
                         </div>
                      {/* LÓGICA DEL SKELETON */}
                     {isLoadingBookings ? (
@@ -246,7 +246,7 @@ export default function FieldCard2({ field }: FieldCardProps) {
             {/* Footer */}
             <div className="bg-brand-gray/10 px-5 py-3 border-t border-brand-gray flex justify-between items-center mt-auto">
                 <div className="flex items-baseline gap-1">
-                    <span className="text-lg font-black text-brand-black">S/ {field.pricePerHour}</span>
+                    <span className="text-lg font-black text-brand-black">{user?.currency?.symbol || "$"} {field.pricePerHour}</span>
                     {/* <span className="text-[10px] text-gray-500 font-medium uppercase">/ hr</span> */}
                 </div>
 

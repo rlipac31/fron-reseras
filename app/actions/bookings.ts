@@ -17,8 +17,8 @@ export async function createBooking(data: any) {
         "Content-Type": "application/json",
         "x-token": token,
       },
-                // CLAVE: Esto le dice al navegador que envíe las cookies seguras automáticamente
-      credentials: "include", 
+      // CLAVE: Esto le dice al navegador que envíe las cookies seguras automáticamente
+      credentials: "include",
       body: JSON.stringify(data),
     });
 
@@ -29,8 +29,8 @@ export async function createBooking(data: any) {
     }
 
     revalidatePath("/dashboard/campos"); // Para actualizar la lista de reservas
-  
-       return { success: true, data: result.data };
+
+    return { success: true, data: result.data };
 
   } catch (error: any) {
     return { success: false, error: error.message };
@@ -64,10 +64,10 @@ export async function getBookingsConFiltro(filter?: string, date?: string) {
 
     if (!res.ok) throw new Error(result.message);
 
-    return { 
-      success: true, 
-      data: result.data, 
-      meta: result.meta 
+    return {
+      success: true,
+      data: result.data,
+      meta: result.meta
     };
   } catch (err) {
     return { success: false, message: "Error de conexión", data: [], meta: {} };
@@ -94,17 +94,17 @@ export async function getBookingsConPagination(filter?: string, date?: string, p
     // Caso 1: El servidor respondió pero con un error (404, 500, etc.)
     if (!res.ok) {
       console.error(`Error de API: ${res.status}`);
-      return { 
-        data: [], 
+      return {
+        data: [],
         meta: { totalResults: 0, page: 1, limit: 12 },
-        error: "No pudimos obtener las reservas en este momento." 
+        error: "No pudimos obtener las reservas en este momento."
       };
     }
 
     const result = await res.json();
-    
-    return { 
-      data: result.data || [], 
+
+    return {
+      data: result.data || [],
       meta: result.meta || { totalResults: 0, page: parseInt(page), limit: parseInt(limit) },
       error: null
     };
@@ -112,98 +112,35 @@ export async function getBookingsConPagination(filter?: string, date?: string, p
   } catch (err) {
     // Caso 2: El servidor está caído o no hay internet (Error de conexión)
     console.error("Fallo crítico de conexión:", err);
-    
-    return { 
-      data: [], 
+
+    return {
+      data: [],
       meta: { totalResults: 0, page: parseInt(page), limit: parseInt(limit) },
-      error: "El servicio de reservas no está disponible. Por favor, intenta más tarde." 
+      error: "El servicio de reservas no está disponible. Por favor, intenta más tarde."
     };
   }
 }
 
-/* export async function getBookings() {
- const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value;
-  
-
-   try {
-   const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings`, {
-    headers: {
-      'x-token': `${token}`, // O el nombre que use tu header
-      'Content-Type': 'application/json'
-
-    },
-    //next: { revalidate: 60 } // Opcional: revalida datos cada minuto
-  });
-
-    const  {data} = await res.json();
-
-    if (!res.ok) {
-      return { success: false, message: data.message || "Error al cargar la lsita de Bookings" };
-    }
-
-// Cambia por la ruta donde se muestra el card
-    
-    return { success: true, message: "campos cargo correctamente", data };
-  } catch (err) {
-    console.error("Action Error:", err);
-    return { success: false, message: "Error de conexión con el servidor" };
-  }
-}
- */
-/* export async function getBookingsByField(fieldId: string) {
-  console.log(" listando reservas de este campo ")
-  const cookieStore = await cookies();
-  const token = cookieStore.get('token')?.value;
-
-  if (!fieldId) return { success: false, message: "ID de campo no proporcionado" };
-
-  try {
-      const res = await fetch(`http://localhost:4000/api/bookings/campo/${fieldId}`, {
-      headers: {
-        // Seguimos enviando el token al backend de Node.js
-        'x-token': `${token}`, 
-        'Content-Type': 'application/json'
-      },
-      // Importante para que Next.js no cachee datos viejos
-      cache: 'no-store' 
-    });
-    
-    
-    const data = await res.json(); // Los datos crudos de tu API de Node
-    console.log("hola desde action bookif filed ", data)
-
-    if (!res.ok) {
-      return { success: false, message: data.message || "Error al cargar" };
-    }
-
-    // Devolvemos 'data' directamente
-    return { success: true, message: "Carga exitosa", content:data }; 
-  } catch (err) {
-    return { success: false, message: "Error de conexión" };
-  }
-}
- */
 
 
 // app/actions/bookings.ts/// reservas con filtro pára cada campo
 export async function getFieldIdReservations(fieldId: string, date?: string) {
   const params = new URLSearchParams();
   if (date) params.append('date', date);
-   const cookieStore = await cookies();
+  const cookieStore = await cookies();
   const token = cookieStore.get('token')?.value;
 
   //const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/campo/${fieldId}/reservas?${params.toString()}`, {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/campo/${fieldId}/reservas?${params.toString()}`,{
-   headers: { 'x-token': `${token}` },
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/campo/${fieldId}/reservas?${params.toString()}`, {
+    headers: { 'x-token': `${token}` },
     cache: 'no-store'
   });
-  
+
   const result = await res.json();
-  return { 
-    status:result.status,
-    data: result.data || [], 
-    meta: result.metadata || { totalResults: result.result} 
+  return {
+    status: result.status,
+    data: result.data || [],
+    meta: result.metadata || { totalResults: result.result }
 
   };
 }
@@ -219,15 +156,15 @@ export async function getBookingId(bookingId: string) {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/${bookingId}`, {
       headers: { "x-token": token || "" }
     });
-    
+
     const data = await res.json(); // Los datos crudos de tu API de Node
-    
+
     if (!res.ok) {
       return { success: false, message: data.message || "Error al cargar" };
     }
 
     // Devolvemos 'data' directamente
-    return { success: true, message: "Carga exitosa", content:data }; 
+    return { success: true, message: "Carga exitosa", content: data };
   } catch (err) {
     return { success: false, message: "Error de conexión" };
   }
@@ -238,7 +175,7 @@ export async function getBookingId(bookingId: string) {
 
 
 export async function cancelBookingAction(id: string) {
-   const cookieStore = await cookies();
+  const cookieStore = await cookies();
   const token = cookieStore.get('token')?.value;
   if (!id || !token) {
     return { success: false, message: "Faltan datos requeridos" };
@@ -260,8 +197,8 @@ export async function cancelBookingAction(id: string) {
     }
 
     // Esto limpia la caché de Next.js y refresca los datos automáticamente
-   revalidatePath("/dashboard/campos"); // Cambia por la ruta donde se muestra el card
-    
+    revalidatePath("/dashboard/campos"); // Cambia por la ruta donde se muestra el card
+
     return { success: true, message: "Reserva cancelada correctamente", data };
   } catch (err) {
     console.error("Action Error:", err);
@@ -279,9 +216,9 @@ export async function updateBookingAction(bookingId: string, updateData: any) {
   try {
     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/bookings/${bookingId}`, {
       method: 'PUT', // O PATCH según tu ruta
-      headers: { 
+      headers: {
         "Content-Type": "application/json",
-        "x-token": token || "" 
+        "x-token": token || ""
       },
       body: JSON.stringify(updateData)
     });
@@ -290,16 +227,16 @@ export async function updateBookingAction(bookingId: string, updateData: any) {
 
     if (!res.ok) {
       // Aquí capturamos el error 403 de las "2 horas de anticipación"
-      return { 
-        success: false, 
-        message: data.message || data.mensage || "Error al actualizar" 
+      return {
+        success: false,
+        message: data.message || data.mensage || "Error al actualizar"
       };
     }
 
-    return { 
-      success: true, 
-      message: "Reserva actualizada correctamente", 
-      content: data.documentoActualizado 
+    return {
+      success: true,
+      message: "Reserva actualizada correctamente",
+      content: data.documentoActualizado
     };
   } catch (err) {
     return { success: false, message: "Error de conexión con el servidor" };

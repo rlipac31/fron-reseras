@@ -1,20 +1,21 @@
-import { getServerUser } from '@/app/actions/userServer';
-import { Mail, Phone, CreditCard, FilePenLine, Trash2 } from 'lucide-react'; // Opcional: npm install lucide-react
+import { Mail, Phone, CreditCard, FilePenLine } from 'lucide-react';
 import Link from 'next/link';
+import DeleteCustomerButton from './DeleteCustomerButton';
 
 interface UserCardProps {
   user: {
-    uid:string;
+    uid: string;
     name: string;
     email: string;
     dni: string;
+    phone?: string;
     role: string;
-    businessId: {id:string; slug:string; name:string;description:string;};
+    businessId: { id: string; slug: string; name: string; description: string; };
   };
 }
 
-export default async function UserCard({ user }: UserCardProps) {
- console.log("user desde user card: ", user);
+export default function UserCard({ user }: UserCardProps) {
+  console.log("user ", user);
   return (
     <div className="bg-brand-white border border-brand-gray rounded-xl p-4 shadow-sm flex flex-col gap-4">
       <div className="flex items-center gap-4">
@@ -23,7 +24,7 @@ export default async function UserCard({ user }: UserCardProps) {
          text-brand-gold font-bold text-xl">
           {user.name.charAt(0)}
         </div>
-        
+
         <div>
           <h3 className="font-bold text-brand-black text-[14px] leading-tight">{user.name}</h3>
           <span className="bg-brand-gold text-[9px] font-bold px-2 py-0.5 rounded text-brand-black uppercase">
@@ -35,11 +36,11 @@ export default async function UserCard({ user }: UserCardProps) {
       <div className="space-y-2 mt-2">
         <div className="flex items-center gap-3 text-gray-500 text-sm">
           <Mail size={16} className="text-brand-gold" />
-          <span>{user.email}</span>
+          <span className="truncate">{user.email}</span>
         </div>
         <div className="flex items-center gap-3 text-gray-500 text-sm">
           <Phone size={16} className="text-brand-gold" />
-          <span>0979102105</span> {/* Hardcoded como en tu imagen o agrégalo al backend */}
+          <span>{user.phone || 'N/A'}</span>
         </div>
         <div className="flex items-center gap-3 text-gray-500 text-sm">
           <CreditCard size={16} className="text-brand-gold" />
@@ -47,21 +48,19 @@ export default async function UserCard({ user }: UserCardProps) {
         </div>
       </div>
 
-      <div className="mt-4 pt-4 border-t border-brand-gray flex justify-between">
-    <Link href={`/${user.businessId.slug}/dashboard/customers/${user.uid}`} >
-        <button className="text-gray-400 text-xs font-bold uppercase hover:text-brand-black transition-colors cursor-pointer"
-        title='Editar Datos De Cliente'
-        >
-          
-          <FilePenLine size={24} />
+      <div className="mt-4 pt-4 border-t border-brand-gray flex justify-between items-center">
+        <Link href={`/${user.businessId.slug}/dashboard/customers/${user.uid}`} >
+          <button className="text-gray-400 text-xs font-bold uppercase hover:text-brand-black transition-colors cursor-pointer"
+            title='Editar Datos De Cliente'
+          >
+            <FilePenLine size={24} />
           </button>
-    </Link>
-      
-        <button className="text-gray-400 text-xs font-bold uppercase hover:text-red-700 transition-colors cursor-pointer"
-         title='Eliminar cliente'
-        >
-          <Trash2 size={24} className='hover:text-red-600' />
-        </button>
+        </Link>
+
+        <DeleteCustomerButton
+          customerId={user.uid}
+          customerName={user.name}
+        />
       </div>
     </div>
   );

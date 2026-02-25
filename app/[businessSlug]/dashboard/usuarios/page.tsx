@@ -12,15 +12,15 @@ async function getUsers(): Promise<{ users: UserType[], errorMessage: string | n
   const token = cookieStore.get('token')?.value;
 
 
-const user = await getServerUser();
-// 2. Validación de seguridad
+  const user = await getServerUser();
+  // 2. Validación de seguridad
   if (user?.role !== 'ADMIN' && user?.role !== 'USER') {
-    
+
     // REDIRECCIÓN DE SERVIDOR
     // Nota: redirect() lanza un error interno de Next.js que detiene 
     // la ejecución del componente y manda al usuario a la nueva ruta.
-      redirect(`/${user?.slug}/unauthorized`);
-   
+    redirect(`/${user?.slug}/unauthorized`);
+
   }
 
 
@@ -30,7 +30,7 @@ const user = await getServerUser();
         'Content-Type': 'application/json',
         'x-token': `${token}`
       },
-     // credentials: "include",
+      // credentials: "include",
       next: { revalidate: 30 }
     });
 
@@ -56,12 +56,12 @@ const user = await getServerUser();
 export default async function UseresPage() {
   // ¡IMPORTANTE! Agregamos el await aquí
   const { users, errorMessage } = await getUsers();
-  
+
   const cookieStore = await cookies();
   const slug = cookieStore.get('slug')?.value;
   const businessId = cookieStore.get('businessId')?.value;
   // Obtenemos el businessId del primer usuario si existe, o del contexto si lo tuvieras
- // const businessId = users.length > 0 ? users[0]?.businessId : '';
+  // const businessId = users.length > 0 ? users[0]?.businessId : '';
 
   // --- VISTA DE ERROR AMIGABLE ---
   if (errorMessage) {
@@ -80,7 +80,7 @@ export default async function UseresPage() {
         <p className="text-gray-500 text-sm max-w-xs mt-2 mb-6">
           {errorMessage}
         </p>
-        <Link 
+        <Link
           href={`/${slug}/dashboard`}
           className="bg-brand-black text-brand-white px-8 py-3 rounded-xl font-bold uppercase text-xs hover:scale-105 transition-all"
         >
@@ -104,13 +104,13 @@ export default async function UseresPage() {
           <p className="text-gray-500 text-sm">Gestiona la base de datos de usuarios de tu complejo.</p>
         </div>
 
-        <Link href={`/${slug}/add-user?businessId=${businessId}`}> 
+        {/* <Link href={`/${slug}/add-user?businessId=${businessId}`}>
           <button className="flex items-center gap-2 bg-brand-gold text-brand-black hover:bg-brand-black hover:text-brand-gold px-4 py-3 
           rounded-xl font-black text-xs transition-all shadow-lg shadow-brand-accent/20 uppercase transition duration-400 ease-in-out">
             <UserPlus size={18} />
             Registrar Usuario Cliente
           </button>
-        </Link>   
+        </Link> */}
       </header>
 
       {/* Grid de Clientes */}

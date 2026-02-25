@@ -25,8 +25,6 @@ interface CustomerType {
   };
 }
 
-
-
 // Simulando la respuesta de tu backend
 const getCustomers = async () => {
 

@@ -1,5 +1,6 @@
 // app/reservar/page.tsx
 import { getfieldId } from "@/app/actions/fields";
+import { getServerUser } from "@/app/actions/userServer";
 import BookingForm from "@/components/reserva/BookingForm"
 import { Suspense } from "react";
 
@@ -8,22 +9,25 @@ export default async function SaveReservationPage({
   searchParams,
 }: {
   searchParams: Promise<{ fieldId?: string; name?: string; date?: string; time?: string }>;
-}) { 
+}) {
   const { fieldId, name, date, time } = await searchParams;
   // En un escenario real, aquí podrías hacer un fetch al backend 
+  const user = await getServerUser();
+  if (!user) {
+    return <div>Cargando sesión o sesión no encontrada...</div>;
+  }
 
-  
   const field = await getfieldId(fieldId || '');
   const campo = field.data.field;
-  console.log(" camapo id ", fieldId, "campo data ", campo)
-/* 
-      const searchParams = useSearchParams();
-    const fieldId = searchParams.get("fieldId");
- */
+  // console.log(" camapo id ", fieldId, "campo data ", campo)
+  /* 
+        const searchParams = useSearchParams();
+      const fieldId = searchParams.get("fieldId");
+   */
   return (
     <main className="min-h-screen bg-brand-black py-12 px-4 rounded-xl ">
       <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
+
         {/* Columna Izquierda: Detalles de la Reserva */}
         <div className="lg:col-span-1 space-y-6 w-full lg:w-100 ">
           <section className="bg-brand-gray/5 border border-brand-gray/10 p-6 rounded-2xl">
@@ -33,19 +37,19 @@ export default async function SaveReservationPage({
             <p className="text-brand-gray text-sm leading-relaxed">
               Estás a un paso de asegurar tu partido. Completa los datos y elige tu método de pago preferido.
             </p>
-            
+
             <hr className="my-6 border-brand-gray/10" />
 
             {/* Resumen Informativo */}
             <div className="space-y-4">
               <div className="flex flex-col gap-2 items-start">
-                 <span className="text-brand-white/60 text-[16px]">Sede: {campo.name}</span>
+                <span className="text-brand-white/60 text-[16px]">Sede: {campo.name}</span>
                 <span className="text-brand-white/60 text-[16px]">Sede: {campo.location}</span>
                 <span className="text-brand-white font-medium text-[12px]">Descripcion: {campo.description}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-brand-white/60">Precio por hora:</span>
-                <span className="text-brand-gold font-bold">S/ {campo.pricePerHour}</span>
+                <span className="text-brand-gold font-bold">{user?.currency?.symbol || "$"} {campo.pricePerHour}</span>
               </div>
             </div>
           </section>
@@ -61,19 +65,19 @@ export default async function SaveReservationPage({
         {/* Columna Derecha: El Formulario */}
         <div className="lg:col-span-2">
           <Suspense fallback={<div className="text-brand-white">Cargando formulario...</div>}>
-        {/*     <BookingForm fieldId={fieldId} campo={campo} /> */}
-            <BookingForm 
+            {/*     <BookingForm fieldId={fieldId} campo={campo} /> */}
+            <BookingForm
               initialData={{
                 fieldId: fieldId || '',
                 fieldName: name || '',
                 date: date || '',
                 time: time || '',
-                campo:campo
-              }} 
-            />    
+                campo: campo
+              }}
+            />
           </Suspense>
         </div>
-        
+
       </div>
     </main>
   );

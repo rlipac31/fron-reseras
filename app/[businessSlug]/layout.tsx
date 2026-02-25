@@ -21,7 +21,7 @@ export default async function SlugLayout({
   // 2. Esperamos a la promesa de params
   const resolvedParams = await params;
   const { businessSlug } = resolvedParams;
-  console.log(" busnessSlug desde layout businesSlug ", businessSlug)
+  //console.log(" busnessSlug desde layout businesSlug ", businessSlug)
   
   // 1. Obtenemos los datos decodificando el token en el servidor (Sin fetch extra)
   const userData = await getServerUser();

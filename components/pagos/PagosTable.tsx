@@ -2,10 +2,15 @@
 import { useState } from 'react';
 import {
     CheckCircle, Clock, XCircle, Smartphone, Banknote, CreditCard,
-    Loader2, AlertTriangle, Trash2, X, Info, TicketSlash, TicketX
+    Loader2, AlertTriangle, Trash2, X, Info, TicketSlash, TicketX,
+    Currency
 } from 'lucide-react';
 import { confirmPaymentAction, cancelPaymentAction } from '@/app/actions/payments';
 import dayjs from 'dayjs';
+import Link from 'next/link';
+import { useUser } from '@/context/UserContext';
+
+
 
 const statusStyles: any = {
     PENDING: "bg-amber-100 text-amber-700 border-amber-200",
@@ -14,13 +19,17 @@ const statusStyles: any = {
 };
 
 const methodStyles: any = {
-    YAPE: "bg-purple-100 text-purple-700 border-purple-200",
+    PAGO_MOVIL: "bg-purple-100 text-purple-700 border-purple-200",
     CASH: "bg-emerald-100 text-emerald-700 border-emerald-200",
     CREDIT_CARD: "bg-blue-100 text-blue-700 border-blue-200",
     DEBIT_CARD: "bg-sky-100 text-sky-700 border-sky-200",
 };
 
 export function PagosTable({ datos }: { datos: any[] }) {
+
+    const { user } = useUser();
+    // console.log("user desde pagosTable ", user);
+
     const [loading, setLoading] = useState(false);
     const [pagoSeleccionado, setPagoSeleccionado] = useState<any | null>(null);
     const [tipoAccion, setTipoAccion] = useState<'CONFIRMAR' | 'CANCELAR' | null>(null);
@@ -68,7 +77,7 @@ export function PagosTable({ datos }: { datos: any[] }) {
                                 <strong className={tipoAccion === 'CONFIRMAR' ? 'text-green-600' : 'text-red-600'}> {tipoAccion === 'CONFIRMAR' ? 'COMPLETADO' : 'CANCELADO'} </strong>
                                 el pago de:
                                 <span className="block font-black text-brand-black text-lg mt-1">{pagoSeleccionado.nameCustomer}</span>
-                                por <strong className="text-brand-black">S/ {pagoSeleccionado.total.toFixed(2)}</strong>.
+                                por <strong className="text-brand-black">{user?.currency?.symbol || 'S/'} {pagoSeleccionado.total.toFixed(2)}</strong>.
                             </p>
 
                             <div className="grid grid-cols-2 gap-3 mt-8">
@@ -123,51 +132,58 @@ export function PagosTable({ datos }: { datos: any[] }) {
                                         <span className="text-[11px] text-gray-400">{row.userId?.email}</span>
                                     </div>
                                 </td>
-              
-                                <td className="px-6 py-4 items-center text-center font-black text-sm">
-                                    <span className="flex items-center gap-1  font-medium justify-center">Precio: {row.amount}</span>
+
+                                <td className="px-4 py-4 items-center text-center font-black text-sm">
+                                    <span className="flex items-center gap-1  font-medium justify-center">Precio: {user?.currency?.symbol || 'S/'}{row.amount}</span>
                                     <div className='text-[10px] font-medium text-gray-500 uppercase'>Descuento: -%{row.descuento}</div>
                                 </td>
-                                <td className="px-6 py-4 items-center text-center">
+                                <td className="px-4 py-4 items-center text-center">
                                     <div className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[10px] font-black border uppercase ${methodStyles[row.paymentMethod]}`}>
-                                        {row.paymentMethod === 'YAPE' && <Smartphone size={12} />}
+                                        {row.paymentMethod === 'PAGO_MOVIL' && <Smartphone size={12} />}
                                         {row.paymentMethod === 'CASH' && <Banknote size={12} />}
                                         {(row.paymentMethod.includes('CARD')) && <CreditCard size={12} />}
                                         {row.paymentMethod.replace('_', ' ')}
                                     </div>
+                                    <div className='text-gray-700 text-[14px] uppercase font-bold mt-2'>{row.phonePayment}</div>
                                 </td>
 
-                                <td className="px-4 py-4 items-center text-center font-black text-sm">S/ {row.total.toFixed(2)}</td>
+                                <td className="px-1 py-4 items-center text-center font-black text-sm">{user?.currency?.symbol || 'S/'} {row.total.toFixed(2)}</td>
                                 <td className="px-4 py-4">
                                     <span className={`px-3 py-1 rounded-full text-[10px] font-black uppercase border ${statusStyles[row.status]}`}>
                                         {row.status}
                                     </span>
                                 </td>
                                 <td className="px-4 py-4 text-right">
-                                    {row.status === 'PENDING' && (
-                                        <div className="flex justify-end gap-2">
-                                            <button
-                                                onClick={() => { setPagoSeleccionado(row); setTipoAccion('CANCELAR'); }}
-                                                className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
-                                                title="Cancelar Pago"
-                                            >{/* 
-                                                <Trash2 size={18} />
-                                                */}
-                                                
-                                              {/*    /> */}
-                                           <Trash2 size={24}/> 
-                                            </button>
-                                            <button
-                                                onClick={() => { setPagoSeleccionado(row); setTipoAccion('CONFIRMAR'); }}
-                                                className="bg-brand-gold text-brand-black text-[10px] font-black px-4 py-2 rounded-xl hover:bg-brand-black hover:text-brand-gold transition-all shadow-sm"
-                                            >
-                                                CONFIRMAR
-                                            </button>
-                                        </div>
-                                    )}
-                                    {row.status !== 'PENDING' && (
-                                        <span className="text-[10px] font-bold text-gray-300 uppercase italic">Sin acciones</span>
-                                    )}
+                                    <div className="flex justify-end gap-2 items-center">
+                                        <Link
+                                            href={`/${user?.slug}/dashboard/pagos/${row._id}`}
+                                            className="p-2 text-gray-400 hover:text-brand-gold hover:bg-brand-black/5 rounded-xl transition-all"
+                                            title="Ver Detalle"
+                                        >
+                                            <Info size={24} />
+                                        </Link>
+
+                                        {row.status === 'PENDING' && (
+                                            <>
+                                                <button
+                                                    onClick={() => { setPagoSeleccionado(row); setTipoAccion('CANCELAR'); }}
+                                                    className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-all"
+                                                    title="Cancelar Pago"
+                                                >
+                                                    <Trash2 size={24} />
+                                                </button>
+                                                <button
+                                                    onClick={() => { setPagoSeleccionado(row); setTipoAccion('CONFIRMAR'); }}
+                                                    className="bg-brand-gold text-brand-black text-[10px] font-black px-4 py-2 rounded-xl hover:bg-brand-black hover:text-brand-gold transition-all shadow-sm"
+                                                >
+                                                    CONFIRMAR
+                                                </button>
+                                            </>
+                                        )}
+                                        {row.status !== 'PENDING' && (
+                                            <span className="text-[10px] font-bold text-gray-300 uppercase italic">Ya Procesado</span>
+                                        )}
+                                    </div>
                                 </td>
                             </tr>
                         ))}
