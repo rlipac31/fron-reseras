@@ -39,14 +39,15 @@ function LoginForm() {
   const businessIdValue = watch("businessId");
 
   const urlLocal = `${process.env.NEXT_PUBLIC_API_URL}`;
+  const url = `/api-backend`;
 
   // FUNCIÓN 1: Verificar Email y listar negocios
   const handleCheckEmail = async () => {
     if (!emailValue || errors.email) return;
-    
+
 
     try {
-      const res = await fetch(`${urlLocal}/auth/check-email`, {
+      const res = await fetch(`${url}/auth/check-email`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: emailValue }),
@@ -62,7 +63,7 @@ function LoginForm() {
           // Si solo hay uno, lo asignamos y pasamos al password
           setValue("businessId", data.businessId);
           setStep(2);
-          
+
         }
         setLoginError(false);
       } else {
@@ -78,7 +79,8 @@ function LoginForm() {
   // FUNCIÓN 2: Login Final
   const onSubmit = async (data: LoginFormValues) => {
     try {
-      const res = await fetch(`${urlLocal}/auth`, {
+      const url = `/api-backend`;
+      const res = await fetch(`${url}/auth`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
@@ -125,9 +127,8 @@ function LoginForm() {
               {...register("email")}
               type="email"
               disabled={step === 2}
-              className={`w-full px-4 py-3 rounded-xl border transition-all outline-none ${
-                errors.email ? "border-red-500 ring-1 ring-red-500" : "border-brand-gray focus:ring-2 focus:ring-brand-gold"
-              } ${step === 2 ? "bg-gray-100 text-gray-500" : "bg-white text-brand-black"}`}
+              className={`w-full px-4 py-3 rounded-xl border transition-all outline-none ${errors.email ? "border-red-500 ring-1 ring-red-500" : "border-brand-gray focus:ring-2 focus:ring-brand-gold"
+                } ${step === 2 ? "bg-gray-100 text-gray-500" : "bg-white text-brand-black"}`}
               placeholder="ejemplo@correo.com"
             />
           </div>
@@ -135,7 +136,7 @@ function LoginForm() {
           {/* PASO 2: SELECT DE NEGOCIO Y PASSWORD */}
           {step === 2 && (
             <div className="animate-in fade-in slide-in-from-top-4 duration-500 space-y-5">
-              
+
               {/* SELECT DE NEGOCIOS (Solo si hay varios) */}
               {businesses.length > 1 && (
                 <div>
@@ -178,7 +179,7 @@ function LoginForm() {
             </button>
           ) : (
             <div className="flex gap-2">
-               <button
+              <button
                 type="button"
                 onClick={() => setStep(1)}
                 className="w-1/3 bg-brand-gray text-brand-black font-bold py-4 rounded-xl uppercase text-xs"
@@ -210,7 +211,7 @@ const SkeletonLoader = () => (
     <div className="h-3 w-32 bg-gray-200 rounded-full ml-1"></div>
     {/* Skeleton para el Select */}
     <div className="h-12 w-full bg-gray-200 rounded-xl"></div>
-    
+
     {/* Skeleton para el Label Password */}
     <div className="h-3 w-24 bg-gray-200 rounded-full ml-1 mt-6"></div>
     {/* Skeleton para el Input Password */}
