@@ -144,7 +144,7 @@ export default function ReservationForm({ initialData }: Props) {
 
         setLoading(true);
         try {
-            //  console.log(" datafromat desde handlesutmit ", formData);
+/
             const url = `/api-backend/bookings`;
             const urlLocal = `${process.env.NEXT_PUBLIC_API_URL}/bookings`;//local
             const response = await fetch(`${url}`, { // Tu endpoint de Node.js
