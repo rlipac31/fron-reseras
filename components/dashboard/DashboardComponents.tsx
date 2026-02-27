@@ -27,26 +27,26 @@ export const KpiSection = ({ kpis, currency }: { kpis?: DashboardKPIs, currency:
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
                 title="Ingresos Recaudados"
-                value={`${currency} ${kpis?.ingresos?.recaudado}`}
+                value={`${currency} ${kpis?.ingresos?.recaudado || 0}`}
                 trend={`+${kpis?.nuevas24h} nuevas`}
                 icon={<Wallet className="hover:bg-brand-gold text-brand-black" />}
             />
             <StatCard
                 title="Pendiente de Cobro"
-                value={`${currency} ${kpis?.ingresos?.pendiente}`}
+                value={`${currency} ${kpis?.ingresos?.pendiente || 0}`}
                 trend={`${kpis?.cancelaciones} cancelaciones`}
                 trendType="neutral"
                 icon={<AlertCircle className="text-danger" />}
             />
             <StatCard
                 title="Ocupación"
-                value={`${kpis?.ocupacionPorcentaje?.toFixed(0)}%`}
+                value={`${kpis?.ocupacionPorcentaje?.toFixed(0) || 0} %`}
                 trend="Promedio semanal"
                 icon={<TrendingUp className="hover:bg-brand-gold text-brand-black" />}
             />
             <StatCard
                 title="Nuevas (24h)"
-                value={kpis?.nuevas24h || ''}
+                value={kpis?.nuevas24h || 0}
                 trend="Último día"
                 icon={<Users className="hover:bg-brand-gold text-brand-black" />}
             />

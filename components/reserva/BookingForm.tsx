@@ -15,6 +15,7 @@ import { useUser } from "@/context/UserContext";
 import { ErrorAlert } from "../Alert";
 
 import dayjs from "dayjs";
+import { getCustomers } from "@/app/actions/customer";
 
 
 
@@ -81,21 +82,16 @@ export default function ReservationForm({ initialData }: Props) {
     useEffect(() => {
         const fetchCustomers = async () => {
             try {
-                //const url = `/api-backend/users/customers`;
-                const urlLocal = `${process.env.NEXT_PUBLIC_API_URL}/users/customers`;//local
-                //.log("urlLocal desde booking form ", urlLocal, "url ", url)
-                const res = await fetch(urlLocal, {
-                    headers: { "Content-Type": "application/json" },
-                    // ESTO ES VITAL: Permite que el navegador reciba y guarde la cookie HttpOnly
-                    credentials: "include",
-                });
-                const data = await res.json();
-                setCustomers(data || [{ nameCustomer: "Consumidor final" }]);
+                const { success, content, message } = await getCustomers();
+                console.log("customers desde booking form ", content)
+                //setCustomers(content)
+                setCustomers(content || [{ nameCustomer: "Consumidor final" }]);
             } catch (error) {
-                console.error("Error al cargar clientes");
+                console.log(`error ${error}`)
             } finally {
                 setLoadingCustomers(false);
             }
+
         };
         fetchCustomers();
     }, [user?.role]);
@@ -394,6 +390,7 @@ export default function ReservationForm({ initialData }: Props) {
                                         type="text"
                                         placeholder="DNI / Documento"
                                         value={formData.dniCustomer}
+                                        required={true}
                                         // onChange={(e) => setFormData({ ...formData, dniCustomer: e.target.value })}
                                         onChange={(e) => {
                                             const val = e.target.value;

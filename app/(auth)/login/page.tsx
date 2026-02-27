@@ -9,6 +9,7 @@ import * as z from "zod";
 import Image from 'next/image';
 import { ErrorAlert } from '@/components/Alert';
 import fondo from '../../../public/assets/soccer-488700_1920.jpg';
+import { loginAction, checkEmailAction } from '@/app/actions/auth';
 
 // Esquema de validación dinámico
 const loginSchema = z.object({
@@ -22,7 +23,8 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 function LoginForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
-  const { setUser } = useUser();
+  const { user, setUser } = useUser();
+
   // skeleton
   const [isLoadingCheck, setIsLoadingCheck] = useState(false);
   // ESTADOS PARA LA LÓGICA MULTI-NEGOCIO
@@ -38,32 +40,20 @@ function LoginForm() {
   const emailValue = watch("email");
   const businessIdValue = watch("businessId");
 
-  const urlLocal = `${process.env.NEXT_PUBLIC_API_URL}`;
-  const url = `/api-backend`;
-
   // FUNCIÓN 1: Verificar Email y listar negocios
   const handleCheckEmail = async () => {
     if (!emailValue || errors.email) return;
 
-    console.log('url local ', urlLocal);
     try {
-      const res = await fetch(`${url}/auth/check-email`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: emailValue }),
-      });
-
-      const data = await res.json();
+      const data = await checkEmailAction(emailValue);
 
       if (data.success) {
         if (data.hasMultiple) {
           setBusinesses(data.businesses);
           setStep(2);
         } else {
-          // Si solo hay uno, lo asignamos y pasamos al password
           setValue("businessId", data.businessId);
           setStep(2);
-
         }
         setLoginError(false);
       } else {
@@ -79,24 +69,22 @@ function LoginForm() {
   // FUNCIÓN 2: Login Final
   const onSubmit = async (data: LoginFormValues) => {
     try {
-      const url = `/api-backend`;
-      const urlLocal = `${process.env.NEXT_PUBLIC_API_URL}`;
-      console.log('url local ', urlLocal);
-      const res = await fetch(`${url}/auth`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data),
-        credentials: "include",
-      });
+      const result = await loginAction(data);
+      console.log('result ', result);
 
-      const dataLogin = await res.json();
+      if (result.success) {
+        // 1. Asegúrate de que el slug exista
+        setUser(result.user);
+        router.refresh();
 
-      if (dataLogin.success) {
-        setUser(dataLogin.user);
-        const destination = searchParams.get('from') || `/${dataLogin.user?.slug}/dashboard`;
-        router.push(destination);
+        const destination = `/${result.user.slug}/dashboard`;
+
+        // 2. Un pequeño delay opcional si ves que sigue fallando
+        setTimeout(() => {
+          router.push(destination);
+        }, 200);
       } else {
-        setErrorMsg(dataLogin.message);
+        setErrorMsg(result.message || "Error al iniciar sesión");
         setLoginError(true);
       }
     } catch (error) {
@@ -105,6 +93,7 @@ function LoginForm() {
     }
   };
 
+  console.log('user desde login page ', user);
   return (
     <main className="relative min-h-screen w-full flex items-center justify-center p-4">
       <div className="absolute inset-0 z-0">
@@ -206,6 +195,7 @@ function LoginForm() {
     </main>
   );
 }
+
 
 const SkeletonLoader = () => (
   <div className="animate-pulse space-y-5">

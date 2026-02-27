@@ -1,33 +1,26 @@
-import type { NextConfig } from "next";
 
+
+/** @type {import('next').NextConfig} */
 const nextConfig = {
   async rewrites() {
     return [
       {
-        // Cuando llames a /api-backend/..., Next.js lo enviará a render por debajo
+        // En local y producción, esto redirige las llamadas
         source: '/api-backend/:path*',
         destination: 'https://reserva-campos.onrender.com/api/:path*',
       },
     ];
   },
+  // Corregimos los remotePatterns para que no fallen
   images: {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'https://reserva-campos.onrender.com/',
-        port: '',
-        pathname: '/imagenes/**',
-      },
-      {
-        protocol: 'https',
-        hostname: 'https://reserva-campos.onrender.com/**', // Uso de comodines
+        hostname: 'reserva-campos.onrender.com',
+        pathname: '/**',
       },
     ],
   },
-
-
 };
 
 export default nextConfig;
-
-

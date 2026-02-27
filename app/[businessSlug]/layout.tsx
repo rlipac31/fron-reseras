@@ -7,14 +7,14 @@ import { redirect } from 'next/navigation';
 
 import { getServerUser } from '@/app/actions/userServer'; // La función que creamos antes
 
-  // 1. Define la interfaz de params como una Promesa
+// 1. Define la interfaz de params como una Promesa
 interface LayoutParams {
   businessSlug: string;
 }
-export default async function SlugLayout({ 
-  children, 
-  params 
-}: { 
+export default async function SlugLayout({
+  children,
+  params
+}: {
   children: React.ReactNode;
   params: Promise<LayoutParams>; // Definimos que params es una Promesa
 }) {
@@ -22,17 +22,17 @@ export default async function SlugLayout({
   const resolvedParams = await params;
   const { businessSlug } = resolvedParams;
   //console.log(" busnessSlug desde layout businesSlug ", businessSlug)
-  
+
   // 1. Obtenemos los datos decodificando el token en el servidor (Sin fetch extra)
   const userData = await getServerUser();
   //console.log("data::: desde slugLayout ", userData)
 
   // 2. VALIDACIÓN DE SEGURIDAD: 
 
- 
+
   if (userData && userData.slug !== businessSlug) {
-     console.log("Acceso no autorizado para este slug");
-     redirect(`/${userData.slug}/unauthorized`); // Opcional
+    console.log("Acceso no autorizado para este slug");
+    redirect(`/${userData.slug}/unauthorized`); // Opcional
   }
 
 
@@ -44,11 +44,11 @@ export default async function SlugLayout({
         <Sidebar
           key={userData?.uid || 'guest'}
           slug={userData?.slug || 'intimos'}
-        /> 
+        />
 
         <MobileNavbar
           business={userData?.slug || ''}
-        />  
+        />
 
         <main className="flex-1 flex flex-col overflow-hidden px-0">
           <header className="h-16 bg-brand-white border-b border-brand-gray/20 flex items-center justify-between px-8">
@@ -57,8 +57,8 @@ export default async function SlugLayout({
               {userData && (
                 <>
                   <span className="text-sm text-brand-black/60 italic">Hola, {userData.nameUser}</span>
-                    <div className="w-8 h-8 rounded-full bg-brand-gold flex items-center justify-center text-brand-black font-bold">
-                    {userData.nameUser[0]} 
+                  <div className="w-8 h-8 rounded-full bg-brand-gold flex items-center justify-center text-brand-black font-bold">
+                    {userData.nameUser[0]}
                   </div>
                 </>
               )}
@@ -71,7 +71,7 @@ export default async function SlugLayout({
               toastOptions={{
                 style: { background: '#000814', color: '#ffffff', border: '1px solid #FFC300' },
               }}
-              position="top-right" richColors closeButton 
+              position="top-right" richColors closeButton
             />
           </div>
         </main>

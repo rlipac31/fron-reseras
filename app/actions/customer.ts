@@ -38,7 +38,7 @@ export async function createCustomer(formData: userRequest) {
   }
 }
 
-//lsita customers
+// lista customers
 
 export async function getCustomers() {
   const cookieStore = await cookies();
