@@ -4,7 +4,7 @@ const nextConfig = {
   async rewrites() {
     return [
       {
-        // Cuando llames a /api-backend/..., Next.js lo enviará a Koyeb por debajo
+        // Cuando llames a /api-backend/..., Next.js lo enviará a render por debajo
         source: '/api-backend/:path*',
         destination: 'https://reserva-campos.onrender.com/api/:path*',
       },
