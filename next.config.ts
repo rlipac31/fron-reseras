@@ -1,12 +1,12 @@
 import type { NextConfig } from "next";
 
 const nextConfig = {
-   async rewrites() {
+  async rewrites() {
     return [
       {
         // Cuando llames a /api-backend/..., Next.js lo enviará a Koyeb por debajo
         source: '/api-backend/:path*',
-        destination: 'https://wrong-mame-rlipac-497028fb.koyeb.app/api/:path*',
+        destination: 'https://reserva-campos.onrender.com/api/:path*',
       },
     ];
   },
@@ -14,13 +14,13 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: 'https',
-        hostname: 'https://wrong-mame-rlipac-497028fb.koyeb.app/',
+        hostname: 'https://reserva-campos.onrender.com/',
         port: '',
         pathname: '/imagenes/**',
       },
       {
         protocol: 'https',
-        hostname: 'https://wrong-mame-rlipac-497028fb.koyeb.app/**', // Uso de comodines
+        hostname: 'https://reserva-campos.onrender.com/**', // Uso de comodines
       },
     ],
   },

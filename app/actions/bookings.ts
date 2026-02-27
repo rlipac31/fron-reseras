@@ -233,6 +233,8 @@ export async function updateBookingAction(bookingId: string, updateData: any) {
       };
     }
 
+    revalidatePath("/dashboard/reservas"); // Cambia por la ruta donde se muestra el card
+
     return {
       success: true,
       message: "Reserva actualizada correctamente",

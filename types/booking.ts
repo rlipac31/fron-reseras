@@ -66,7 +66,7 @@ export interface BookingType {
   endTime: string;
   durationInMinutes: number;
   totalPrice: number;
-  state: 'CONFIRMED' | 'PENDING' | 'CANCELLED';
+  state: 'CONFIRMED' | 'PENDING' | 'CANCELLED' | 'COMPLETED';
   customerName: string;
   customerDNI: string;
   createdAt: string;

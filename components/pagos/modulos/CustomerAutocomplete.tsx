@@ -8,12 +8,12 @@ export const CustomerAutocomplete = ({ customers, loading, onSelect }: any) => {
   const [selectedIndex, setSelectedIndex] = useState(-1);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const filtered = query === "" 
-    ? [] 
-    : customers.filter((c: any) => 
-        c.name.toLowerCase().includes(query.toLowerCase()) || 
-        c.dni.includes(query)
-      ).slice(0, 6);
+  const filtered = query === ""
+    ? []
+    : customers.filter((c: any) =>
+      c.name.toLowerCase().includes(query.toLowerCase()) ||
+      c.dni.includes(query)
+    ).slice(0, 6);
 
   // Control de teclado
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -41,12 +41,12 @@ export const CustomerAutocomplete = ({ customers, loading, onSelect }: any) => {
       <label className="text-[10px] font-bold text-gray-500 uppercase ml-1 mb-1 block">
         Cliente Registrado (Buscador)
       </label>
-      
+
       <div className="relative group">
         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-brand-gold">
           {loading ? <Loader2 className="animate-spin" size={18} /> : <Search size={18} />}
         </div>
-        
+
         <input
           type="text"
           value={query}
@@ -57,9 +57,9 @@ export const CustomerAutocomplete = ({ customers, loading, onSelect }: any) => {
                      focus:border-brand-black/10 focus:ring-2 focus:ring-brand-gold/10 outline-none 
                      transition-all shadow-sm text-brand-white/80 font-medium"
         />
-        
+
         <div className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400">
-            <ChevronDown size={16} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+          <ChevronDown size={16} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
         </div>
       </div>
 

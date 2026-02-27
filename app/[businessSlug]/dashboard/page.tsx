@@ -1,84 +1,136 @@
 "use client";
-import { PlusCircle } from 'lucide-react';
-import { StatCard } from '@/components/dashboard/StatCard';
-import { BookingTable } from '@/components/dashboard/BookingTable';
+import { useEffect, useState } from 'react';
+import {
+    PlusCircle, Calendar, RefreshCw, AlertCircle, LayoutDashboard
+} from 'lucide-react';
 import { useUser } from '@/context/UserContext';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 
-//export default function SoccerDashboard() {
-export default function DashboardPage({ params }: { params: { slug: string } }) {
-  const { slug } = params; // Aquí tienes "prometeo"
-  const { user } = useUser();
-  //console.log("user  desde page dashboard", user)
+// Componentes y Acciones
+import { getDashboardData } from '@/app/actions/dashboard';
+import { DashboardResponse } from '@/types/dashboard';
+import {
+    KpiSection,
+    TimelineSection,
+    NextMatchAlert,
+    FieldRankingSection,
+    HeatmapSection
+} from '@/components/dashboard/DashboardComponents';
 
-
-  // Estos datos vendrán de tu API de Node.js en el futuro
-  const bookings = [
-    { user: "Carlos Ruiz", cancha: "Cancha 1", time: "18:00 - 19:00", status: "Pagado" },
-    { user: "FC Amigos", cancha: "Cancha 2", time: "19:00 - 20:00", status: "Pendiente" },
-  ];
-
-  const canchas = [
-    { id: 1, nombre: "Cancha Sintética 1", estado: "Ocupada", proxima: "20:00" },
-    { id: 2, nombre: "Cancha Sintética 2", estado: "Disponible", proxima: "Libre" },
-    { id: 3, nombre: "Cancha Fútbol 11", estado: "Mantenimiento", proxima: "Mañana" },
-  ];
-  //console.log("slug paramas dashboardPage ", slug)
-  //  console.log("user slug dashboardPage", user)
-
-  return (
-    <div className="flex min-h-screen bg-brand-gray/30">
+export default function SoccerDashboard() {
+    const { user } = useUser();
+    if (user?.role !== 'ADMIN' && user?.role !== 'USER') {
+        redirect(`/${user?.slug}/dashboard/campos`);
+    }
 
 
-      <main className="flex-1 p-8 bg-gray-100">
-        <header className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-brand-black">Panel de Control</h1>
-            <p className="text-gray-500 text-sm">Gestión de alquileres en tiempo real</p>
-          </div>
-          {/* <button className="flex items-center gap-2 bg-brand-gold hover:bg-brand-gold/90 text-brand-black px-4 py-2 rounded-lg font-bold transition-all shadow-md">
-            <PlusCircle size={20} />
-            Nueva Reserva
-          </button> */}
-        </header>
+    const currency = user?.currency?.symbol || "$";
 
-        {/* KPIs */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-          {/*  <div className='hover:bg-brand-black hover:text-white'> */}
-          <Link href={`/${user?.slug}/dashboard/pagos`}>
-            <StatCard title="Ingresos Hoy" value={`${user?.currency?.symbol || "$"} 45000`} trend="+12%" />
-          </Link>
-          {/*    </div> */}
+    const [data, setData] = useState<DashboardResponse | null>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
+    const fetchData = async () => {
+        setLoading(true);
+        const result = await getDashboardData();
+        if (result.success && result.data) {
+            setData(result.data);
+            setError(null);
+        } else {
+            setError(result.error || "Ocurrió un error inesperado");
+        }
+        setLoading(false);
+    };
 
-          <StatCard title="Reservas Activas" value="8" trend="En curso" trendType="neutral" />
-          <StatCard title="Ocupación" value="85%" trend="+5% vs ayer" />
-        </div>
+    useEffect(() => {
+        fetchData();
+    }, []);
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/*  <BookingTable data={bookings} /> */}
-
-          {/* Estado de Canchas (Componente Inline para el ejemplo) */}
-          <div className="bg-brand-white rounded-xl shadow-sm border border-brand-gray p-6">
-            <h3 className="font-bold text-lg mb-4 text-brand-black">Disponibilidad</h3>
-            <div className="space-y-4">
-              {canchas.map((c) => (
-                <div key={c.id} className="flex items-center justify-between p-3 rounded-lg bg-brand-gray/20">
-                  <div>
-                    <p className="font-semibold text-brand-black text-sm">{c.nombre}</p>
-                    <p className="text-xs text-gray-500">Próxima: {c.proxima}</p>
-                  </div>
-                  <span className={`text-[10px] font-bold px-2 py-1 rounded-full uppercase ${c.estado === 'Disponible' ? 'bg-success/20 text-success' :
-                    c.estado === 'Ocupada' ? 'bg-danger/20 text-danger' : 'bg-gray-200 text-gray-600'
-                    }`}>
-                    {c.estado}
-                  </span>
-                </div>
-              ))}
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4">
+                <RefreshCw className="animate-spin text-brand-gold" size={48} />
+                <p className="text-brand-black font-black uppercase tracking-widest animate-pulse">Cargando Dashboard...</p>
             </div>
-          </div>
+        );
+    }
+
+    if (error || !data) {
+        return (
+            <div className="p-8 max-w-2xl mx-auto text-center space-y-4">
+                <div className="bg-danger/10 p-6 rounded-2xl border-2 border-danger/20 inline-block">
+                    <AlertCircle className="text-danger mx-auto mb-4" size={48} />
+                    <h2 className="text-2xl font-black text-brand-black uppercase">Ups, algo salió mal</h2>
+                    <p className="text-gray-500 font-medium mt-2">{error || "No se pudo conectar con el servidor"}</p>
+                </div>
+                <div>
+                    <button
+                        onClick={fetchData}
+                        className="bg-brand-black text-white px-8 py-3 rounded-xl font-bold hover:scale-105 transition-transform"
+                    >
+                        REINTENTAR CONEXIÓN
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="p-4 md:p-8 space-y-8 max-w-7xl mx-auto animate-in fade-in duration-700">
+
+            {/* HEADER CON ACCIONES RÁPIDAS */}
+            <header className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div className="flex items-center gap-4">
+                    <div className="p-3 bg-brand-gold text-brand-black rounded-2xl shadow-[4px_4px_0px_0px_rgba(0,0,0,1)]">
+                        <LayoutDashboard size={28} />
+                    </div>
+                    <div>
+                        <h1 className="text-3xl font-black text-brand-black tracking-tight uppercase">Dashboard</h1>
+                        <p className="text-gray-500 font-medium">Estado del complejo: <span className="text-success font-bold">Abierto</span></p>
+                    </div>
+                </div>
+                {/* <div className="flex gap-3">
+                    <button
+                        onClick={fetchData}
+                        className="p-3 bg-brand-gray/20 text-gray-400 rounded-xl hover:text-brand-black hover:bg-brand-gray transition-colors"
+                        title="Refrescar datos"
+                    >
+                        <RefreshCw size={20} />
+                    </button>
+                    <button className="hidden lg:flex items-center gap-2 bg-brand-black text-white px-4 py-2.5 rounded-xl font-bold hover:scale-105 transition-transform cursor-pointer">
+                        <Calendar size={18} />
+                        Bloquear Horario
+                    </button>
+                    <button className="flex items-center gap-2 bg-brand-gold text-brand-black px-6 py-2.5 rounded-xl font-black shadow-[4px_4px_0px_0px_rgba(0,0,0,1)] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all cursor-pointer">
+                        <PlusCircle size={20} />
+                        NUEVA RESERVA
+                    </button>
+                </div> */}
+            </header>
+
+            {/* MÉTRICAS PRINCIPALES (KPIs) */}
+            <KpiSection kpis={data.kpis} currency={currency} />
+
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+
+                {/* COLUMNA IZQUIERDA: TIMELINE DE CANCHAS */}
+                <div className="lg:col-span-2 space-y-8">
+                    <TimelineSection bookings={data.timeline} />
+                </div>
+
+                {/* COLUMNA DERECHA: ALERTAS Y RANKING */}
+                <div className="space-y-6">
+                    {/* PRÓXIMO PARTIDO */}
+                    <NextMatchAlert nextMatch={data.proximoPartido} currency={currency} />
+
+                    {/* RANKING DE CANCHAS */}
+                    <FieldRankingSection ranking={data.rankingCampos} currency={currency} />
+
+                    {/* MAPA DE DEMANDA (Heatmap) */}
+                    <HeatmapSection items={data.mapaCalor} />
+                </div>
+            </div>
         </div>
-      </main>
-    </div>
-  );
+    );
 }

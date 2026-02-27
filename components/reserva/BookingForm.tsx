@@ -65,7 +65,7 @@ export default function ReservationForm({ initialData }: Props) {
         descuento: 0,
         total: 0,
         idUser: user?.uid,
-        idCustomer: user?.uid,
+        idCustomer: user?.role === 'CUSTOMER' ? user?.uid : undefined,
         dniCustomer: '',
         nameCustomer: user?.role === 'CUSTOMER' ? (user?.nameUser || '') : 'CONSUMIDOR FINAL',
         phonePayment: ''
@@ -81,10 +81,10 @@ export default function ReservationForm({ initialData }: Props) {
     useEffect(() => {
         const fetchCustomers = async () => {
             try {
-                const url = `/api-backend/users/customers`;
-                // const urlLocal = `${process.env.NEXT_PUBLIC_API_URL}/users/customers`;//local
+                //const url = `/api-backend/users/customers`;
+                const urlLocal = `${process.env.NEXT_PUBLIC_API_URL}/users/customers`;//local
                 //.log("urlLocal desde booking form ", urlLocal, "url ", url)
-                const res = await fetch(url, {
+                const res = await fetch(urlLocal, {
                     headers: { "Content-Type": "application/json" },
                     // ESTO ES VITAL: Permite que el navegador reciba y guarde la cookie HttpOnly
                     credentials: "include",
@@ -147,7 +147,7 @@ export default function ReservationForm({ initialData }: Props) {
             //  console.log(" datafromat desde handlesutmit ", formData);
             const url = `/api-backend/bookings`;
             const urlLocal = `${process.env.NEXT_PUBLIC_API_URL}/bookings`;//local
-            const response = await fetch(`${urlLocal}`, { // Tu endpoint de Node.js
+            const response = await fetch(`${url}`, { // Tu endpoint de Node.js
                 method: "POST",
                 headers: {
                     'Content-Type': 'application/json'
@@ -315,7 +315,7 @@ export default function ReservationForm({ initialData }: Props) {
                                                 ...prev,
                                                 nameCustomer: 'CONSUMIDOR FINAL',
                                                 dniCustomer: '',
-                                                idCustomer: user?.uid
+                                                idCustomer: undefined
                                             }));
                                         }
                                     }}
@@ -460,13 +460,7 @@ export default function ReservationForm({ initialData }: Props) {
                             <select
                                 value={formData.descuento ?? 0}
                                 onChange={(e) => setFormData(prev => ({ ...prev, descuento: Number(e.target.value) }))}
-                                /*   onChange={(e) => {
-                                  const valor = Number(e.target.value);
-                                  setFormData(prev => ({ 
-                                  ...prev, 
-                                  descuento: valor 
-                                  }));
-                              }} */
+
                                 className="w-full px-4 py-2 border border-brand-gray rounded-lg text-sm focus:ring-2 focus:ring-brand-gold outline-none
                                  bg-white font-bold"
                             >

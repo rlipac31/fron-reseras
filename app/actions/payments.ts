@@ -44,6 +44,10 @@ export async function getPagosConFiltro(
   try {
     const cookieStore = await cookies();
     const token = (await cookieStore).get('token')?.value;
+    if (!token) {
+      //si no hay token
+      throw new Error("Eno existe token en la peticion");
+    }
 
     const params = new URLSearchParams();
     if (filter) params.append('filter', filter);
@@ -51,8 +55,9 @@ export async function getPagosConFiltro(
     if (method) params.append('method', method); // Enviamos el método a la API
     params.append('page', page);
     params.append('limit', limit);
-
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/con-filtro?${params.toString()}`, {
+    const urlLocal = `http://localhost:4000/api/payments/con-filtro?${params.toString()}`;
+    //const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/con-filtro?${params.toString()}`, {  
+    const res = await fetch(urlLocal, {
       headers: {
         'x-token': `${token}`,
         'Content-Type': 'application/json'
@@ -122,6 +127,28 @@ export async function confirmPaymentAction(paymentId: string) {
     return { success: true };
   } catch (error) {
     return { success: false, message: "No se pudo confirmar el pago" };
+  }
+}
+
+
+//buscar doc pago por bookingId
+export async function searchPaymentByBookingId(bookingId: string) {
+  const cookieStore = await cookies();
+  const token = (await cookieStore).get('token')?.value;
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/payments/vistaDetalle/${bookingId}`, {
+      headers: {
+        'Content-Type': 'application/json',
+        'x-token': `${token}`
+      },
+    });
+
+    if (!res.ok) throw new Error("Error al buscar el pago");
+
+    const result = await res.json();
+    return { success: true, data: result.data || result.content }; // Suponiendo que viene en .data o .content
+  } catch (error: any) {
+    return { success: false, message: error.message || "No se pudo encontrar el pago" };
   }
 }
 

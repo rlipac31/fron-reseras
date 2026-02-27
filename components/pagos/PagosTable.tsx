@@ -2,8 +2,9 @@
 import { useState } from 'react';
 import {
     CheckCircle, Clock, XCircle, Smartphone, Banknote, CreditCard,
-    Loader2, AlertTriangle, Trash2, X, Info, TicketSlash, TicketX,
-    Currency
+    Loader2, AlertTriangle, Trash2, X, Info, TicketSlash, TicketX, Currency,
+    ReceiptText,
+    Eye
 } from 'lucide-react';
 import { confirmPaymentAction, cancelPaymentAction } from '@/app/actions/payments';
 import dayjs from 'dayjs';
@@ -28,7 +29,7 @@ const methodStyles: any = {
 export function PagosTable({ datos }: { datos: any[] }) {
 
     const { user } = useUser();
-    // console.log("user desde pagosTable ", user);
+    console.log("datos desde pagosTable ", datos);
 
     const [loading, setLoading] = useState(false);
     const [pagoSeleccionado, setPagoSeleccionado] = useState<any | null>(null);
@@ -113,7 +114,7 @@ export function PagosTable({ datos }: { datos: any[] }) {
                             <th className="px-4 py-4 text-center">Metodo De Pago</th>
                             <th className="px-4 py-4 text-center">Total</th>
                             <th className="px-4 py-4">Estado</th>
-                            <th className="px-4 py-4 text-right">Acciones</th>
+                            <th className="px-4 py-4 text-center border-l border-brand-gray/50">Acciones</th>
                         </tr>
                     </thead>
                     <tbody className="divide-y divide-brand-gray/50 ">
@@ -121,7 +122,7 @@ export function PagosTable({ datos }: { datos: any[] }) {
                             <tr key={row._id} className="hover:bg-brand-gray/40 transition-colors">
                                 <td className="px-4 py-4">
                                     <div className="flex flex-col">
-                                        <span className="font-bold text-brand-black text-sm">{row.nameCustomer}</span>
+                                        <span className="font-bold text-brand-black text-sm capitalize">{row.nameCustomer}</span>
                                         <span className="text-[10px] text-gray-400">{dayjs(row.paymentDate).format('DD/MM/YY hh:mm A')}</span>
                                     </div>
                                 </td>
@@ -153,14 +154,14 @@ export function PagosTable({ datos }: { datos: any[] }) {
                                         {row.status}
                                     </span>
                                 </td>
-                                <td className="px-4 py-4 text-right">
+                                <td className="px-4 py-4 text-right border-l-2 border-brand-gray/60">
                                     <div className="flex justify-end gap-2 items-center">
                                         <Link
                                             href={`/${user?.slug}/dashboard/pagos/${row._id}`}
-                                            className="p-2 text-gray-400 hover:text-brand-gold hover:bg-brand-black/5 rounded-xl transition-all"
-                                            title="Ver Detalle"
+                                            className="p-2 text-brand-black hover:text-brand-gold hover:bg-brand-black/5 rounded-xl transition-all font-bold"
+                                            title="Ver Detalle de Pago"
                                         >
-                                            <Info size={24} />
+                                            <Info size={28} />
                                         </Link>
 
                                         {row.status === 'PENDING' && (
@@ -181,7 +182,7 @@ export function PagosTable({ datos }: { datos: any[] }) {
                                             </>
                                         )}
                                         {row.status !== 'PENDING' && (
-                                            <span className="text-[10px] font-bold text-gray-300 uppercase italic">Ya Procesado</span>
+                                            <span className="text-[10px] font-bold text-gray-700 uppercase italic">Ya Procesado</span>
                                         )}
                                     </div>
                                 </td>

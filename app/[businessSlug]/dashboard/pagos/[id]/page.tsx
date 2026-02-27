@@ -14,8 +14,8 @@ export default async function PaymentDetailPage({
 }) {
     const { id } = await params;
     const user = await getServerUser();
+
     const { success, data: payment, error } = await getPaymentById(id);
-    // console.log("pago detalle ", payment);
 
     if (!success || !payment) {
         return (
@@ -171,6 +171,7 @@ export default async function PaymentDetailPage({
 
                                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 w-full">
                                     <div className="space-y-1">
+                                        {/* <p className="text-[9px] font-black text-brand-gold uppercase tracking-wides ">id reserva: <span className="text-brand-white"> {payment.bookingId._id}</span></p> */}
                                         <p className="text-[9px] font-black text-brand-gold uppercase tracking-widest">Fecha Evento</p>
                                         <p className="text-[12px] font-bold uppercase">{dayjs(payment.bookingId.startTime).format("dddd D MMMM [del] YYYY")}</p>
                                     </div>
@@ -203,7 +204,8 @@ export default async function PaymentDetailPage({
                             </div>
 
                             <div className="space-y-4">
-                                <DetailItem label="Documento / ID" value={payment.idCustomer || "N/A"} />
+                                <DetailItem label="Id Cliente" value={payment.idCustomer || "N/A"} />
+                                <DetailItem label="DNI/Cedula" value={payment.dniCustomer || "N/A"} />
                                 <DetailItem label="Referencia Operación" value={payment._id.slice(-12).toUpperCase()} />
                             </div>
                         </section>

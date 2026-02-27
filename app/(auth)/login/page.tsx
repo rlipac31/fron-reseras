@@ -45,7 +45,7 @@ function LoginForm() {
   const handleCheckEmail = async () => {
     if (!emailValue || errors.email) return;
 
-
+    console.log('url local ', urlLocal);
     try {
       const res = await fetch(`${url}/auth/check-email`, {
         method: "POST",
@@ -80,6 +80,8 @@ function LoginForm() {
   const onSubmit = async (data: LoginFormValues) => {
     try {
       const url = `/api-backend`;
+      const urlLocal = `${process.env.NEXT_PUBLIC_API_URL}`;
+      console.log('url local ', urlLocal);
       const res = await fetch(`${url}/auth`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },

@@ -5,29 +5,34 @@ import dayjs from 'dayjs';
 import timezone from 'dayjs/plugin/timezone';
 import utc from 'dayjs/plugin/utc';
 import { useParams, useRouter } from 'next/navigation';
-import { Save, ArrowLeft, Loader2, Calendar, User, Trophy, CreditCard, Clock } from 'lucide-react';
+import { Save, ArrowLeft, Loader2, Calendar, User, Trophy, CreditCard, Clock, IdCard } from 'lucide-react';
 import { getBookingId, getFieldIdReservations } from '@/app/actions/bookings';
 import { useUser } from '@/context/UserContext';
 import { updateBookingAction } from '@/app/actions/bookings';
+import { getFields } from '@/app/actions/fields';
 
 
 
 // Configuración de Dayjs
 dayjs.extend(utc);
 dayjs.extend(timezone);
-const TIMEZONE = "America/Lima";
+
 
 const EditReserva = () => {
+
+
   const router = useRouter();
   const params = useParams();
   const bookingId = String(params.id || "");
   const { user } = useUser();
+  const TIMEZONE = user?.zonaHoraria || "America/Lima";
 
   // --- ESTADOS ---
   const [booking, setBooking] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [fetchingSlots, setFetchingSlots] = useState(false); // Para el Skeleton
+  const [fields, setFields] = useState<any[]>([]);
   const [isEditable, setIsEditable] = useState<Record<string, boolean>>({});
 
   const [baseDate, setBaseDate] = useState<string>(dayjs().tz(TIMEZONE).format('YYYY-MM-DD'));
@@ -39,15 +44,23 @@ const EditReserva = () => {
       const res = await getBookingId(bookingId);
       if (res.success) {
         setBooking(res.content);
+
         // Sincronizar fecha inicial con la reserva
         const reservationDate = dayjs(res.content.startTime).tz(TIMEZONE).format('YYYY-MM-DD');
         setBaseDate(reservationDate);
       }
+
+      // Cargar campos activos
+      const fieldsRes = await getFields();
+      if (fieldsRes.success) {
+        setFields(fieldsRes.content);
+      }
+
       setLoading(false);
     };
     loadBooking();
   }, [bookingId]);
-
+  console.log("booking desde id", booking);
   // --- 2. CARGA DE RESERVAS DEL DÍA (Para disponibilidad) ---
   useEffect(() => {
     const fetchAvailability = async () => {
@@ -128,20 +141,16 @@ const EditReserva = () => {
     // Preparamos la data que espera tu backend
     // Nota: Enviamos solo lo necesario para no sobrecargar el body
     const updateData = {
-      /*  userId: {
-         name: booking.userId.name,
-         uid: booking.userId.uid
-       }, */
-      // fieldId: booking.fieldId._id,
+      fieldId: booking.fieldId._id,
+      customerName: booking.customerName.toLowerCase(),
+      customerDNI: booking.customerDNI,
       startTime: booking.startTime,
-      // El backend calculará el endTime si es necesario, 
-      // pero si lo necesitas puedes enviarlo también
     };
 
     const result = await updateBookingAction(bookingId, updateData);
 
     if (result.success) {
-      alert("✅ ¡Excelente! Reserva actualizada."); // Aquí puedes usar Sonner o Toast
+      console.log("✅ ¡Excelente! Reserva actualizada.", result); // Aquí puedes usar Sonner o Toast
       router.push(`/${user?.slug}/dashboard/reservas`);
       router.refresh();
     } else {
@@ -151,7 +160,7 @@ const EditReserva = () => {
 
     setSaving(false);
   };
-  /* bolea el boton si si an npasado menos de 2 horas */
+  /* bloquea el boton si si an npasado menos de 2 horas */
   const isTooLateToEdit = () => {
     if (!booking?.startTime) return false;
     const now = dayjs();
@@ -179,7 +188,7 @@ const EditReserva = () => {
           {/* Header Superior */}
           <div className="bg-brand-black p-8 text-white flex justify-between items-center">
             <div>
-              <span className="text-brand-gold text-[10px] font-black uppercase tracking-[0.3em]">Editor Maestro</span>
+              <span className="text-brand-gold text-[10px] font-black uppercase tracking-[0.3em]">Usuario Editor</span>
               <h1 className="text-2xl font-black uppercase leading-tight">{booking?.userId?.name}</h1>
             </div>
             <div className="p-4 bg-white/5 rounded-2xl border border-white/10 hidden md:block">
@@ -193,29 +202,82 @@ const EditReserva = () => {
               {/* SECCIÓN IZQUIERDA: DATOS */}
               <div className="space-y-6">
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Titular de Reserva</label>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Creado por (User)</label>
                   <div className="relative">
                     <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
                     <input
                       value={booking?.userId?.name || ""}
-                      onChange={(e) => setBooking({ ...booking, userId: { ...booking.userId, name: e.target.value } })}
-                      disabled={!isEditable.user}
-                      className={`w-full pl-12 pr-12 py-4 rounded-2xl border-2 font-bold text-sm transition-all
-                      ${isEditable.user ? 'border-brand-gold bg-white' : 'border-brand-gray bg-slate-50 text-slate-400'}`}
+                      readOnly
+                      className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-brand-gray bg-slate-50 text-slate-400 font-bold text-sm cursor-not-allowed"
                     />
-                    <button type="button" onClick={() => setIsEditable({ ...isEditable, user: !isEditable.user })} className="absolute right-4 top-1/2 -translate-y-1/2">
-                      {isEditable.user ? '🔓' : '🔒'}
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Nombre del Cliente</label>
+                  <div className="relative">
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <input
+                      value={booking?.customerName || ""}
+                      onChange={(e) => setBooking({ ...booking, customerName: e.target.value })}
+                      disabled={!isEditable.customerName}
+                      className={`w-full pl-12 pr-12 py-4 rounded-2xl border-2 font-bold text-sm transition-all
+                      ${isEditable.customerName ? 'border-brand-gold bg-white' : 'border-brand-gray bg-slate-50 text-slate-400'}`}
+                    />
+                    <button type="button" onClick={() => setIsEditable({ ...isEditable, customerName: !isEditable.customerName })} className="absolute right-4 top-1/2 -translate-y-1/2">
+                      {isEditable.customerName ? '🔓' : '🔒'}
                     </button>
                   </div>
                 </div>
 
                 <div className="space-y-3">
-                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Cancha</label>
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">DNI del Cliente</label>
+                  <div className="relative">
+                    <IdCard className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
+                    <input
+                      value={booking?.customerDNI || ""}
+                      maxLength={8}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, ''); // Solo números
+                        if (val.length <= 8) {
+                          setBooking({ ...booking, customerDNI: val });
+                        }
+                      }}
+                      disabled={!isEditable.customerDNI}
+                      className={`w-full pl-12 pr-12 py-4 rounded-2xl border-2 font-bold text-sm transition-all
+                      ${isEditable.customerDNI ? 'border-brand-gold bg-white' : 'border-brand-gray bg-slate-50 text-slate-400'}`}
+                    />
+                    <button type="button" onClick={() => setIsEditable({ ...isEditable, customerDNI: !isEditable.customerDNI })} className="absolute right-4 top-1/2 -translate-y-1/2">
+                      {isEditable.customerDNI ? '🔓' : '🔒'}
+                    </button>
+                  </div>
+                  <p className="text-[9px] text-gray-500 italic ml-2">
+                    * Máximo 8 dígitos. Si su documento es más largo, ingrese los primeros 8.
+                  </p>
+                </div>
+
+                <div className="space-y-3">
+                  <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Cancha (Cambiar Espacio)</label>
                   <div className="relative">
                     <Trophy className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
-                    <select disabled className="w-full pl-12 pr-4 py-4 rounded-2xl border-2 border-brand-gray bg-slate-50 text-slate-400 appearance-none font-bold text-sm">
-                      <option>{booking?.fieldId?.name}</option>
+                    <select
+                      value={booking?.fieldId?._id}
+                      disabled={!isEditable.field}
+                      onChange={(e) => {
+                        const selectedId = e.target.value;
+                        const selectedField = fields.find(f => f._id === selectedId);
+                        setBooking({ ...booking, fieldId: selectedField });
+                      }}
+                      className={`w-full pl-12 pr-12 py-4 rounded-2xl border-2 font-bold text-sm appearance-none outline-none transition-all
+                      ${isEditable.field ? 'border-brand-gold bg-white' : 'border-brand-gray bg-slate-50 text-slate-400 cursor-not-allowed'}`}
+                    >
+                      {fields.map((f: any) => (
+                        <option key={f._id} value={f._id}>{f.name}</option>
+                      ))}
                     </select>
+                    <button type="button" onClick={() => setIsEditable({ ...isEditable, field: !isEditable.field })} className="absolute right-4 top-1/2 -translate-y-1/2">
+                      {isEditable.field ? '🔓' : '🔒'}
+                    </button>
                   </div>
                 </div>
 
@@ -292,13 +354,11 @@ const EditReserva = () => {
             <button
               type="submit"
               onClick={handleSubmit}
-              disabled={saving || isTooLateToEdit()}
-              title={isTooLateToEdit() ? "Límite de tiempo excedido" : "Guardar"}
-              className="w-full bg-brand-black text-brand-gold font-black py-5 rounded-[2rem] flex items-center justify-center gap-4 hover:scale-[1.01] transition-all shadow-2xl disabled:opacity-50 uppercase tracking-[0.2em] text-xs mt-4"
+              disabled={saving}
+              className="w-full bg-brand-black text-brand-gold font-black py-5 rounded-4xl flex items-center justify-center gap-4 hover:scale-[1.01] transition-all shadow-2xl disabled:opacity-50 uppercase tracking-[0.2em] text-xs mt-4"
             >
               {saving ? <Loader2 className="animate-spin" /> : <Save size={18} />}
-              {saving ? "Procesando cambios..." : isTooLateToEdit() ? "Edición bloqueada (-2h)" : "Actualizar Reserva"}
-
+              {saving ? "Procesando cambios..." : "Actualizar Reserva"}
             </button>
 
 

@@ -31,19 +31,15 @@ export default async function PagosPage({
   }
 
 
-  // En Next.js 15+, searchParams es una Promise
-  // const { filter, date } = await searchParams;
+
   const { filter, date, method, page, limit } = await searchParams;
   // const response = await getBookingsConPagination(filter, date, page, limit);
 
   // Ejecutamos la función que tiene el try/catch
   const { success, pagination, resumen, data, error } = await getPagosConFiltro(filter, date, method, page, limit);
   const pagos = data;
-  //console.log("pagos de page  pagos", pagos)
-  /* 
-    */
 
-  // Dentro de PagosPage, antes del return...
+  console.log("pagos ", pagos, "error ", error, "succes   ", success);
 
   return (
     <div className="w-[98vw] space-y-6 animate-in fade-in duration-500 lg:max-w-full mx-auto p-2 md:p-4">
@@ -51,7 +47,7 @@ export default async function PagosPage({
       {/* SECCIÓN DE RESUMEN (CARDS) */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <StatCard title="Total Global" value={resumen.totalGlobal} icon="💰" color="bg-brand-black text-brand-gold" symbol={user?.currency?.symbol} />
-        <StatCard title="Vía Yape" value={resumen.porYape} icon="📱" color="bg-white border border-brand-gray" symbol={user?.currency?.symbol} />
+        <StatCard title="Vía Pago Movil" value={resumen.porYape} icon="📱" color="bg-white border border-brand-gray" symbol={user?.currency?.symbol} />
         <StatCard title="Efectivo" value={resumen.porEfectivo} icon="💵" color="bg-white border border-brand-gray" symbol={user?.currency?.symbol} />
         <StatCard title="Tarjetas" value={resumen.porTarjeta} icon="💳" color="bg-white border border-brand-gray" symbol={user?.currency?.symbol} />
       </div>
