@@ -15,7 +15,7 @@ export async function getServerUser() {
   try {
     // Decodificamos el payload que mostraste en TOKEN_CLAM.png
     const payload: any = decodeJwt(token);
-    console.log("Payload decodificado: ", payload);
+    // console.log("Payload decodificado: ", payload);
 
 
 

@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { verifySession as verifySessionAction } from '@/app/actions/auth';
+//import { verifySession as verifySessionAction } from '@/app/actions/auth';
 
 export interface UserData {
   uid: string;
@@ -29,29 +29,7 @@ export function UserProvider({ children, initialUser }: { children: ReactNode, i
   const [loading, setLoading] = useState(!initialUser); // Si no hay initialUser, activamos carga
   //console.log(" desde contes desde arriba.... user ", user)
 
-  // useEffect(() => {
-  //   // Solo ejecutamos verifySession si el servidor NO nos pasó datos (ej. navegación directa)
-  //   if (!initialUser) {
-  //     const verifySession = async () => {
-  //       try {
-  //         const result = await verifySessionAction();
-  //         console.log('result desde user Context page ', result);
 
-  //         if (result.success && result.user) {
-
-  //           setUser(result.user);
-  //         } else {
-  //           setUser(null);
-  //         }
-  //       } catch (error) {
-  //         setUser(null);
-  //       } finally {
-  //         setLoading(false);
-  //       }
-  //     };
-  //     verifySession();
-  //   }
-  // }, [initialUser]);
 
 
   useEffect(() => {
@@ -88,7 +66,7 @@ export function UserProvider({ children, initialUser }: { children: ReactNode, i
     }
   }, [initialUser]);
 
-  console.log('user desde user Context page ', user);
+  // console.log('user desde user Context page ', user);
 
   return (
     <UserContext.Provider value={{ user, setUser, loading }}>

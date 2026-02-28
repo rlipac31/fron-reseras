@@ -7,7 +7,7 @@ import { getServerUser } from './actions/userServer';
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const initialUser = await getServerUser();
-  console.log("desde  Root Loyout initial user ", initialUser)
+  //  console.log("desde  Root Loyout initial user ", initialUser)
   return (
     <html lang="es">
       <body>
