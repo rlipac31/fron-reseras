@@ -65,6 +65,7 @@ export default function ConfigPage({ initialData }: { initialData?: any }) {
   const router = useRouter(); // Importar de 'next/navigation'
   const { user, setUser } = useUser();// para acualizar la config en el contexto global después de guardar cambios y
   //  para mostrar la moneda actual en el formulario
+  console.log("user config page", user);
 
 
   const [loading, setLoading] = useState(false);
@@ -125,10 +126,10 @@ export default function ConfigPage({ initialData }: { initialData?: any }) {
     setLoading(false);
   };
 
-  const handleLogout = async() => {
+  const handleLogout = async () => {
     // Aquí tu lógica de borrar cookies/localStorage
     // Ejemplo: document.cookie = "token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
-        await logout();
+    await logout();
     setUser(null);
     window.location.href = "/login"; // Redirección completa para limpiar estados
   };

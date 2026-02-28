@@ -29,6 +29,7 @@ export default async function PagosPage({
     // la ejecución del componente y manda al usuario a la nueva ruta.
     redirect(`/${user?.slug}/unauthorized`);
   }
+  console.log("user pagos page", user)
 
 
 
