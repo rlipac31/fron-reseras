@@ -93,7 +93,7 @@ function LoginForm() {
     }
   };
 
-  console.log('user desde login page ', user);
+  // console.log('user desde login page ', user);
   return (
     <main className="relative min-h-screen w-full flex items-center justify-center p-4">
       <div className="absolute inset-0 z-0">

@@ -10,18 +10,7 @@ export type LoginResponse =
   | { success: false; message: string };
 //import { useRouter } from "next/router";
 /* 
-export async function logout() {
-  const cookieStore = await cookies();
 
-  // Eliminamos todas las cookies relacionadas con la sesión
-     cookieStore.delete("token");
-     cookieStore.delete("user_role");
-     cookieStore.delete("user_name");
-     cookieStore.delete("business_name");
-     cookieStore.delete("id_user"); 
-
-
-  redirect("/login");
 } */
 export async function logout() {
   const cookieStore = await cookies();
@@ -104,42 +93,7 @@ export async function checkEmailAction(email: string) {
 
 
 
-// export async function verifySession() {
-//   const cookieStore = await cookies();
-//   const token = cookieStore.get('token')?.value;
 
-//   if (!token) return { success: false };
-//   console.error("token desde verifySession", token);
-
-//   try {
-//     const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-//       method: "GET",
-//       headers: {
-//         'Content-Type': 'application/json',
-//         'x-token': token,
-//       },
-//       credentials: 'include', // REQUERIDO para que el navegador guarde la cookie
-//       // Important: if your backend expects cookies, credentials should be handled carefully in Server Actions
-//     });
-
-
-
-//     if (res.ok) {
-//       const data = await res.json();
-//       // También normalizamos aquí si fuera necesario
-//       const normalizedUser = {
-//         ...data.user,
-//         slug: data.user.configBusiness?.slug || data.user.slug,
-//         role: data.user.businessId === 'ADMIN' ? 'ADMIN' : data.user.role
-//       };
-//       return { success: true, user: normalizedUser };
-//     }
-//     return { success: false };
-//   } catch (error) {
-//     console.error("Error verifying session", error);
-//     return { success: false };
-//   }
-// }
 
 export interface LoginRequest {
   email: string;

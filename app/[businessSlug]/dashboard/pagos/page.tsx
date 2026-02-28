@@ -23,6 +23,7 @@ export default async function PagosPage({
   const user = await getServerUser();
   // 2. Validación de seguridad
   if (user?.role !== 'ADMIN' && user?.role !== 'USER') {
+    console.log("user pagos page dnetro del if no autrizado", user)
 
     // REDIRECCIÓN DE SERVIDOR
     // Nota: redirect() lanza un error interno de Next.js que detiene 
